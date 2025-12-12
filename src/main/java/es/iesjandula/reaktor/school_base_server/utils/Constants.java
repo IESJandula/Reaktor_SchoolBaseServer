@@ -1,5 +1,4 @@
-package es.aad.luna_del_moral_monica_unidad1.utils;
-
+package es.iesjandula.reaktor.school_base_server.utils;
 
 /**
  * Clase de constantes utilizadas en el proyecto Espacios.

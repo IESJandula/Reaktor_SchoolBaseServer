@@ -1,4 +1,4 @@
-package es.aad.luna_del_moral_monica_unidad1.utils;
+package es.iesjandula.reaktor.school_base_server.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * <p>Permite manejar errores con un código y mensaje específicos,
  * y opcionalmente almacenar la excepción original.</p>
 */
-public class EspaciosException extends Exception
+public class ReaktorSchoolBaseServerException extends Exception
 {
 
 	private static final long serialVersionUID = -9080070553502409936L;
@@ -19,25 +19,17 @@ public class EspaciosException extends Exception
 	/** Código de error asociado a la excepción */
 	private Integer codigo;
 	
-	/** Mensaje de error asociado a la excepción */
-	private String mensaje;
-	
-
-    /** Excepción original (opcional) */
-	private Throwable excepcion ;
-	
     /**
      * Constructor principal sin excepción original.
      * 
      * @param codigo Código de error
      * @param mensaje Mensaje de error
      */
-	public EspaciosException(Integer codigo, String mensaje)
+	public ReaktorSchoolBaseServerException(Integer codigo, String mensaje)
 	{
-		super();
+		super(mensaje);
 		
 		this.codigo=codigo;
-		this.mensaje= mensaje;
 	}
 	
     /**
@@ -47,13 +39,11 @@ public class EspaciosException extends Exception
      * @param mensaje Mensaje de error
      * @param excepcion Excepción original asociada
      */
-	public EspaciosException(Integer movieErrorId, String message, Throwable excepcion)
+	public ReaktorSchoolBaseServerException(Integer codigo, String mensaje, Throwable excepcion)
 	{
-		super(message, excepcion);
+		super(mensaje, excepcion);
 		
-		this.codigo=movieErrorId;
-		this.mensaje= message;
-		this.excepcion= excepcion ;
+		this.codigo = codigo;
 	}
 	
 	 /**
@@ -68,11 +58,11 @@ public class EspaciosException extends Exception
 		Map<String, Object> mapBodyException = new HashMap<>() ;
 		
 		mapBodyException.put("codigo", this.codigo) ;
-		mapBodyException.put("message", this.mensaje) ;
+		mapBodyException.put("message", this.getMessage()) ;
 		
-		if (this.excepcion != null)
+		if (this.getCause() != null)
 		{
-			String stackTrace = ExceptionUtils.getStackTrace(this.excepcion);
+			String stackTrace = ExceptionUtils.getStackTrace(this.getCause());
 			mapBodyException.put("excepcion", stackTrace) ;
 		}
 		
@@ -88,5 +78,4 @@ public class EspaciosException extends Exception
 	{
 		return this.codigo ;
 	}
-	
 }

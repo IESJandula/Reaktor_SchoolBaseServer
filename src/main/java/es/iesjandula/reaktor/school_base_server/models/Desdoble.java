@@ -19,5 +19,5 @@ public class Desdoble extends Espacio
 {
 	/** Lista de ocupas del desdoble. */
 	@OneToMany(mappedBy = "desdoble")
-	private List<Ocupa> ocupas;	
+	private List<Ocupa> ocupa;	
 }

@@ -70,6 +70,40 @@ public class Constants
     public static final String ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE = "El curso académico no existe";
 
     /*******************************************/
+    /****** ERRORES EN CURSO ETAPA GRUPO *******/
+    /*******************************************/
+
+    /** Código de error para el curso nulo o vacío */
+    public static final Integer ERR_CURSO_NULO_VACIO_CODE = 110;
+
+    /** Mensaje de error para el curso nulo o vacío */
+    public static final String ERR_CURSO_NULO_VACIO_MESSAGE = "El curso no puede ser nulo o vacío";
+
+    /** Código de error para la etapa nulo o vacío */
+    public static final Integer ERR_ETAPA_NULO_VACIO_CODE = 111;
+
+    /** Mensaje de error para la etapa nulo o vacío */
+    public static final String ERR_ETAPA_NULO_VACIO_MESSAGE = "La etapa no puede ser nulo o vacío";
+
+    /** Código de error para el grupo nulo o vacío */
+    public static final Integer ERR_GRUPO_NULO_VACIO_CODE = 112;
+
+    /** Mensaje de error para el grupo nulo o vacío */
+    public static final String ERR_GRUPO_NULO_VACIO_MESSAGE = "El grupo no puede ser nulo o vacío"; 
+
+    /** Código de error para el curso, etapa y grupo ya existe */
+    public static final Integer ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_CODE = 113;
+
+    /** Mensaje de error para el curso, etapa y grupo ya existe */
+    public static final String ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_MESSAGE = "El curso, etapa y grupo ya existe en la BBDD";
+    
+    /** Código de error para el curso, etapa y grupo no existe */
+    public static final Integer ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_CODE = 114;
+
+    /** Mensaje de error para el curso, etapa y grupo no existe */
+    public static final String ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE = "El curso, etapa y grupo no existe en la BBDD";
+
+    /*******************************************/
     /*********** ERRORES EN ESPACIOS ***********/
     /*******************************************/
 

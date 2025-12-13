@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -132,21 +133,21 @@ public class AdminRestController
 
     /**
      * Crea un espacio sin docencia a partir del DTO.
-     * @param sinDocenciaDto El DTO del espacio sin docencia a crear.
+     * @param espacioSinDocenciaDto El DTO del espacio sin docencia a crear.
      * @return La respuesta HTTP con el espacio creado.
      * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
      */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/sin_docencia", consumes = "application/json")
-	public ResponseEntity<?> crearEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto sinDocenciaDto)
+	public ResponseEntity<?> crearEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto espacioSinDocenciaDto)
 	{
 		try
 		{
             // Validamos el DTO del espacio
-			this.validarEspacioDto(sinDocenciaDto);
+			this.validarEspacioDto(espacioSinDocenciaDto);
 			
             // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarSiExisteElEspacio(sinDocenciaDto);
+            EspacioId espacioId = this.validarCreacionEspacio(espacioSinDocenciaDto);
 
             // Creamos el espacio a partir del DTO
             EspacioSinDocencia espacio = new EspacioSinDocencia();
@@ -209,23 +210,70 @@ public class AdminRestController
         }
     }
 
+    /***
+     * Borrar un espacio sin docencia
+     * @param espacioSinDocenciaDto El DTO del espacio sin docencia a borrar.
+     * @return ResponseEntity con el resultado de la borrada
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @DeleteMapping(value = "/espacios/sin_docencia", consumes = "application/json")
+    public ResponseEntity<?> borrarEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto espacioSinDocenciaDto)
+    {
+        try
+        {
+            // Creamos la clave primaria compuesta del espacio a partir del DTO
+            EspacioId espacioId = new EspacioId();
+
+            // Asignamos los valores de la clave primaria compuesta
+            espacioId.setCursoAcademico(espacioSinDocenciaDto.getCursoAcademico());
+            espacioId.setNombre(espacioSinDocenciaDto.getNombre());
+
+            // Validamos si el espacio ya existe en el repositorio de sin docencia
+            if (!this.espacioSinDocenciaRepository.existsById(espacioId))
+            {
+                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
+                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
+            }
+    
+            // Borrar el espacio en el repositorio de sin docencia
+            this.espacioSinDocenciaRepository.deleteById(espacioId);
+
+            // Logueamos
+            log.info("Espacio sin docencia borrado correctamente");
+    
+            // Devolvemos la respuesta correcta
+            return ResponseEntity.noContent().build();
+        }
+        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+        {
+            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+        catch (Exception exception)
+        {
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            log.error("Error generico al borrar el espacio sin docencia: " + exception.getMessage(), exception);
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+    }
+
     /**
      * Crea un espacio fijo a partir del DTO.
-     * @param fijoDto El DTO del espacio fijo a crear.
+     * @param espacioFijoDto El DTO del espacio fijo a crear.
      * @return La respuesta HTTP con el espacio creado.
      * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
      */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/fijo", consumes = "application/json")
-	public ResponseEntity<?> crearEspacioFijo(@RequestBody EspacioFijoDto fijoDto)
+	public ResponseEntity<?> crearEspacioFijo(@RequestBody EspacioFijoDto espacioFijoDto)
 	{
         try
         {
             // Validamos el DTO del espacio
-            this.validarEspacioDto(fijoDto);
+            this.validarEspacioDto(espacioFijoDto);
             
             // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarSiExisteElEspacio(fijoDto);
+            EspacioId espacioId = this.validarCreacionEspacio(espacioFijoDto);
 
             // Creamos el espacio a partir del DTO
             EspacioFijo espacio = new EspacioFijo();
@@ -287,23 +335,70 @@ public class AdminRestController
         }
     }
 
+    /***
+     * Borrar un espacio fijo
+     * @param espacioFijoDto El DTO del espacio fijo a borrar.
+     * @return ResponseEntity con el resultado de la borrada
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @DeleteMapping(value = "/espacios/fijo", consumes = "application/json")
+    public ResponseEntity<?> borrarEspacioFijo(@RequestBody EspacioFijoDto espacioFijoDto)
+    {
+        try
+        {
+            // Creamos la clave primaria compuesta del espacio a partir del DTO
+            EspacioId espacioId = new EspacioId();
+
+            // Asignamos los valores de la clave primaria compuesta
+            espacioId.setCursoAcademico(espacioFijoDto.getCursoAcademico());
+            espacioId.setNombre(espacioFijoDto.getNombre());
+
+            // Validamos si el espacio ya existe en el repositorio de fijo
+            if (!this.espacioFijoRepository.existsById(espacioId))
+            {
+                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
+                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
+            }
+    
+            // Borrar el espacio en el repositorio de fijo
+            this.espacioFijoRepository.deleteById(espacioId);
+
+            // Logueamos
+            log.info("Espacio fijo borrado correctamente");
+    
+            // Devolvemos la respuesta correcta
+            return ResponseEntity.noContent().build();
+        }
+        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+        {
+            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+        catch (Exception exception)
+        {
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            log.error("Error generico al borrar el espacio fijo: " + exception.getMessage(), exception);
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+    }
+
     /**
      * Crea un espacio desdoble a partir del DTO.
-     * @param desdobleDto El DTO del espacio desdoble a crear.
+     * @param espacioDesdobleDto El DTO del espacio desdoble a crear.
      * @return La respuesta HTTP con el espacio creado.
      * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @PostMapping(value = "/espacios/desdoble", consumes = "application/json")
-    public ResponseEntity<?> crearEspacioDesdoble(@RequestBody EspacioDesdobleDto desdobleDto)
+    public ResponseEntity<?> crearEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
     {
         try
         {
             // Validamos el DTO del espacio
-            this.validarEspacioDto(desdobleDto);
+            this.validarEspacioDto(espacioDesdobleDto);
             
             // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarSiExisteElEspacio(desdobleDto);
+            EspacioId espacioId = this.validarCreacionEspacio(espacioDesdobleDto);
 
             // Creamos el espacio a partir del DTO
             EspacioDesdoble espacio = new EspacioDesdoble();
@@ -364,6 +459,53 @@ public class AdminRestController
             return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
         }
     }
+
+    /***
+     * Borrar un espacio desdoble   
+     * @param espacioDesdobleDto El DTO del espacio desdoble a borrar.
+     * @return ResponseEntity con el resultado de la borrada
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @DeleteMapping(value = "/espacios/desdoble", consumes = "application/json")
+    public ResponseEntity<?> borrarEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
+    {
+        try
+        {
+            // Creamos la clave primaria compuesta del espacio a partir del DTO
+            EspacioId espacioId = new EspacioId();
+
+            // Asignamos los valores de la clave primaria compuesta
+            espacioId.setCursoAcademico(espacioDesdobleDto.getCursoAcademico());
+            espacioId.setNombre(espacioDesdobleDto.getNombre());
+
+            // Validamos si el espacio ya existe en el repositorio de desdoble
+            if (!this.espacioDesdobleRepository.existsById(espacioId))
+            {
+                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
+                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
+            }
+    
+            // Borrar el espacio en el repositorio de desdoble
+            this.espacioDesdobleRepository.deleteById(espacioId);
+
+            // Logueamos
+            log.info("Espacio desdoble borrado correctamente");
+    
+            // Devolvemos la respuesta correcta
+            return ResponseEntity.noContent().build();
+        }
+        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+        {
+            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+        catch (Exception exception)
+        {
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            log.error("Error generico al borrar el espacio desdoble: " + exception.getMessage(), exception);
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+    }
     
     /**
      * Valida que el DTO del espacio no sea nulo o vacío en cualquiera de sus campos.
@@ -421,7 +563,7 @@ public class AdminRestController
      * @return La clave primaria compuesta del espacio.
      * @throws ReaktorSchoolBaseServerException Si el espacio ya existe.
      */
-    private EspacioId validarSiExisteElEspacio(EspacioDto espacioDto) throws ReaktorSchoolBaseServerException
+    private EspacioId validarCreacionEspacio(EspacioDto espacioDto) throws ReaktorSchoolBaseServerException
     {
         // Creamos la clave primaria compuesta del espacio a partir del DTO
         EspacioId espacioId = new EspacioId();
@@ -453,5 +595,4 @@ public class AdminRestController
 
         return espacioId;
     }
-    
 }

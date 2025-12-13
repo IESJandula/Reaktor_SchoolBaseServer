@@ -102,4 +102,22 @@ public class Constants
 
     /** Mensaje de error para el espacio ya existe en desdoble */
     public static final String ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE = "El espacio ya existe en desdoble";
+
+    /** Código de error para el espacio no existe en sin docencia */
+    public static final Integer ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_CODE = 205;
+
+    /** Mensaje de error para el espacio no existe en sin docencia */
+    public static final String ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE = "El espacio no existe en sin docencia";
+
+    /** Código de error para el espacio no existe en fijo */
+    public static final Integer ERR_ESPACIO_NO_EXISTE_EN_FIJO_CODE = 206;
+
+    /** Mensaje de error para el espacio no existe en fijo */
+    public static final String ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE = "El espacio no existe en fijo";
+
+    /** Código de error para el espacio no existe en desdoble */
+    public static final Integer ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_CODE = 207;
+
+    /** Mensaje de error para el espacio no existe en desdoble */
+    public static final String ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE = "El espacio no existe en desdoble";
 }

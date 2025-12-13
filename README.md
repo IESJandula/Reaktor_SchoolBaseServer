@@ -45,6 +45,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <th>ROL REQUERIDO</th>
    </tr>
    <tr>
+      <td>🟢 GET</td>
+      <td>/school_base_server/admin/espacios/sin_docencia</td>
+      <td>Obtiene la lista de todos los espacios sin docencia disponibles en el sistema.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
       <td>🟡 POST</td>
       <td>/school_base_server/admin/espacios/sin_docencia</td>
       <td>Crea un nuevo espacio sin docencia. El espacio no debe existir previamente en ningún repositorio.</td>
@@ -64,6 +70,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <th>ROL REQUERIDO</th>
    </tr>
    <tr>
+      <td>🟢 GET</td>
+      <td>/school_base_server/admin/espacios/fijo</td>
+      <td>Obtiene la lista de todos los espacios fijos disponibles en el sistema.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
       <td>🟡 POST</td>
       <td>/school_base_server/admin/espacios/fijo</td>
       <td>Crea un nuevo espacio fijo. El espacio no debe existir previamente en ningún repositorio.</td>
@@ -81,6 +93,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <th>URL</th>
       <th>DESCRIPCION</th>
       <th>ROL REQUERIDO</th>
+   </tr>
+   <tr>
+      <td>🟢 GET</td>
+      <td>/school_base_server/admin/espacios/desdoble</td>
+      <td>Obtiene la lista de todos los espacios desdobles disponibles en el sistema.</td>
+      <td>ADMINISTRADOR</td>
    </tr>
    <tr>
       <td>🟡 POST</td>
@@ -178,23 +196,17 @@ Headers:
 
 
 
-**Respuesta:** Lista de objetos `CursoAcademico` con la siguiente estructura:
+**Respuesta:** Lista de objetos `CursoAcademicoDto` con la siguiente estructura:
 
 ```json
 [
   {
     "cursoAcademico": "2025/2026",
-    "seleccionado": true,
-    "espaciosSinDocencia": [],
-    "espaciosFijos": [],
-    "espaciosDesdobles": []
+    "seleccionado": true
   },
   {
     "cursoAcademico": "2026/2027",
-    "seleccionado": false,
-    "espaciosSinDocencia": [],
-    "espaciosFijos": [],
-    "espaciosDesdobles": []
+    "seleccionado": false
   }
 ]
 ```
@@ -367,6 +379,69 @@ Body:
 
 
 
+### 🟢 GET - Obtener lista de espacios sin docencia
+
+```
+GET localhost:8092/school_base_server/admin/espacios/sin_docencia
+```
+
+Endpoint que permite recuperar la lista completa de espacios sin docencia disponibles en el sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+
+
+**Ejemplo de petición:**
+
+```
+GET localhost:8092/school_base_server/admin/espacios/sin_docencia
+Headers:
+  Authorization: Bearer <token>
+```
+
+
+
+**Respuesta:** Lista de objetos `EspacioSinDocenciaDto` con la siguiente estructura:
+
+```json
+[
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Aula 101"
+  },
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Aula 102"
+  }
+]
+```
+
+
+
+**Códigos de respuesta:**
+
+- `200 OK`: Lista obtenida correctamente
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
 ## 🔹 Endpoints de Espacios Fijos
 
 
@@ -458,7 +533,133 @@ Body:
 
 
 
+### 🟢 GET - Obtener lista de espacios fijos
+
+```
+GET localhost:8092/school_base_server/admin/espacios/fijo
+```
+
+Endpoint que permite recuperar la lista completa de espacios fijos disponibles en el sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+
+
+**Ejemplo de petición:**
+
+```
+GET localhost:8092/school_base_server/admin/espacios/fijo
+Headers:
+  Authorization: Bearer <token>
+```
+
+
+
+**Respuesta:** Lista de objetos `EspacioFijoDto` con la siguiente estructura:
+
+```json
+[
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Laboratorio Informática"
+  },
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Laboratorio Física"
+  }
+]
+```
+
+
+
+**Códigos de respuesta:**
+
+- `200 OK`: Lista obtenida correctamente
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
 ## 🔹 Endpoints de Espacios Desdobles
+
+
+
+### 🟢 GET - Obtener lista de espacios desdobles
+
+```
+GET localhost:8092/school_base_server/admin/espacios/desdoble
+```
+
+Endpoint que permite recuperar la lista completa de espacios desdobles disponibles en el sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+
+
+**Ejemplo de petición:**
+
+```
+GET localhost:8092/school_base_server/admin/espacios/desdoble
+Headers:
+  Authorization: Bearer <token>
+```
+
+
+
+**Respuesta:** Lista de objetos `EspacioDesdobleDto` con la siguiente estructura:
+
+```json
+[
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Aula Desdoble 1"
+  },
+  {
+    "cursoAcademico": "2025/2026",
+    "nombre": "Aula Desdoble 2"
+  }
+]
+```
+
+
+
+**Códigos de respuesta:**
+
+- `200 OK`: Lista obtenida correctamente
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
 
 
 

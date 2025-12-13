@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DesdobleDto extends EspacioDto
+public class EspacioSinDocenciaDto extends EspacioDto
 {
 
 }

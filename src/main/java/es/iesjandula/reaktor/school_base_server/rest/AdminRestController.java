@@ -1,5 +1,6 @@
 package es.iesjandula.reaktor.school_base_server.rest;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +14,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.iesjandula.reaktor.base.utils.BaseConstants;
-import es.iesjandula.reaktor.school_base_server.dtos.DesdobleDto;
+import es.iesjandula.reaktor.school_base_server.dtos.CursoAcademicoDto;
+import es.iesjandula.reaktor.school_base_server.dtos.EspacioDesdobleDto;
 import es.iesjandula.reaktor.school_base_server.dtos.EspacioDto;
-import es.iesjandula.reaktor.school_base_server.dtos.FijoDto;
-import es.iesjandula.reaktor.school_base_server.dtos.SinDocenciaDto;
+import es.iesjandula.reaktor.school_base_server.dtos.EspacioFijoDto;
+import es.iesjandula.reaktor.school_base_server.dtos.EspacioSinDocenciaDto;
 import es.iesjandula.reaktor.school_base_server.models.CursoAcademico;
 import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioDesdoble;
 import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioFijo;
 import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioSinDocencia;
 import es.iesjandula.reaktor.school_base_server.models.ids.EspacioId;
-import es.iesjandula.reaktor.school_base_server.repository.IDesdobleRepository;
+import es.iesjandula.reaktor.school_base_server.repository.IEspacioDesdobleRepository;
 import es.iesjandula.reaktor.school_base_server.repository.ICursoAcademicoRepository;
-import es.iesjandula.reaktor.school_base_server.repository.IFijoRepository;
-import es.iesjandula.reaktor.school_base_server.repository.ISinDocenciaRepository;
+import es.iesjandula.reaktor.school_base_server.repository.IEspacioFijoRepository;
+import es.iesjandula.reaktor.school_base_server.repository.IEspacioSinDocenciaRepository;
 import es.iesjandula.reaktor.school_base_server.utils.Constants;
 import es.iesjandula.reaktor.school_base_server.utils.ReaktorSchoolBaseServerException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,19 +43,19 @@ public class AdminRestController
 
     /** Repositorio de sin docencia */
 	@Autowired
-	private ISinDocenciaRepository sinDocenciaRepository;
+	private IEspacioSinDocenciaRepository espacioSinDocenciaRepository;
 
     /** Repositorio de fijo */
     @Autowired
-    private IFijoRepository fijoRepository;
+    private IEspacioFijoRepository espacioFijoRepository;
 
     /** Repositorio de desdoble */
 	@Autowired
-	private IDesdobleRepository desdobleRepository;
+	private IEspacioDesdobleRepository espacioDesdobleRepository;
 
     /**
-     * Obtiene la lista de años académicos.
-     * @return La respuesta HTTP con la lista de años académicos.
+     * Obtiene la lista de cursos académicos.
+     * @return La respuesta HTTP con la lista de cursos académicos.
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @GetMapping(value = "/cursos_academicos")
@@ -61,8 +63,11 @@ public class AdminRestController
     {
         try
         {
-            // Obtenemos todos los cursos académicos de la BBDD
-            return ResponseEntity.ok(this.cursoAcademicoRepository.findAll());
+            // Obtenemos todos los cursos académicos en formato DTO
+            List<CursoAcademicoDto> cursosAcademicosDto = this.cursoAcademicoRepository.findAllDto();
+
+            // Devolvemos la respuesta
+            return ResponseEntity.ok(cursosAcademicosDto);
         }
         catch (Exception exception)
         {
@@ -78,10 +83,10 @@ public class AdminRestController
     }
 
     /**
-     * Asigna un año académico a los espacios.
-     * @param anioAcademico El año académico a asignar.
-     * @return La respuesta HTTP con el año académico asignado.
-     * @throws ReaktorSchoolBaseServerException Si el año académico es nulo o vacío.
+     * Asigna un curso académico a los espacios.
+     * @param cursoAcademico El curso académico a asignar.
+     * @return La respuesta HTTP con el curso académico asignado.
+     * @throws ReaktorSchoolBaseServerException Si el curso académico es nulo o vacío.
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @PostMapping(value = "/cursos_academicos")
@@ -133,7 +138,7 @@ public class AdminRestController
      */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/sin_docencia", consumes = "application/json")
-	public ResponseEntity<?> crearEspacioSinDocencia(@RequestBody SinDocenciaDto sinDocenciaDto)
+	public ResponseEntity<?> crearEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto sinDocenciaDto)
 	{
 		try
 		{
@@ -148,7 +153,7 @@ public class AdminRestController
             espacio.setEspacioId(espacioId);
 
             // Guardamos el espacio en el repositorio de sin docencia
-            this.sinDocenciaRepository.saveAndFlush(espacio);
+            this.espacioSinDocenciaRepository.saveAndFlush(espacio);
 
 			// Logueamos
 			log.info("Espacio sin docencia creado correctamente");
@@ -176,6 +181,35 @@ public class AdminRestController
 	}
 
     /**
+     * Obtiene la lista de espacios sin docencia.
+     * @return La respuesta HTTP con la lista de espacios sin docencia.
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @GetMapping(value = "/espacios/sin_docencia")
+    public ResponseEntity<?> obtenerEspaciosSinDocencia()
+    {
+        try
+        {
+            // Obtenemos todos los espacios sin docencia en formato DTO
+            List<EspacioSinDocenciaDto> espaciosSinDocenciaDto = this.espacioSinDocenciaRepository.findAllDto();
+
+            // Devolvemos la respuesta
+            return ResponseEntity.ok(espaciosSinDocenciaDto);
+        }
+        catch (Exception exception)
+        {
+            // Creamos la excepción genérica
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            // Logueamos el error
+            log.error("Error generico al obtener los espacios sin docencia: " + exception.getMessage(), exception);
+
+            // Devolvemos la excepción genérica
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+    }
+
+    /**
      * Crea un espacio fijo a partir del DTO.
      * @param fijoDto El DTO del espacio fijo a crear.
      * @return La respuesta HTTP con el espacio creado.
@@ -183,7 +217,7 @@ public class AdminRestController
      */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/fijo", consumes = "application/json")
-	public ResponseEntity<?> crearEspacioFijo(@RequestBody FijoDto fijoDto)
+	public ResponseEntity<?> crearEspacioFijo(@RequestBody EspacioFijoDto fijoDto)
 	{
         try
         {
@@ -198,7 +232,7 @@ public class AdminRestController
             espacio.setEspacioId(espacioId);
 
             // Guardamos el espacio en el repositorio de fijo
-            this.fijoRepository.saveAndFlush(espacio);
+            this.espacioFijoRepository.saveAndFlush(espacio);
 
             // Logueamos
             log.info("Espacio fijo creado correctamente");
@@ -225,6 +259,35 @@ public class AdminRestController
     }
 
     /**
+     * Obtiene la lista de espacios fijo.
+     * @return La respuesta HTTP con la lista de espacios fijo.
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @GetMapping(value = "/espacios/fijo")
+    public ResponseEntity<?> obtenerEspaciosFijo()
+    {
+        try
+        {
+            // Obtenemos todos los espacios fijo en formato DTO
+            List<EspacioFijoDto> espaciosFijoDto = this.espacioFijoRepository.findAllDto();
+
+            // Devolvemos la respuesta
+            return ResponseEntity.ok(espaciosFijoDto);
+        }
+        catch (Exception exception)
+        {
+            // Creamos la excepción genérica
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            // Logueamos el error
+            log.error("Error generico al obtener los espacios fijo: " + exception.getMessage(), exception);
+
+            // Devolvemos la excepción genérica
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+        }
+    }
+
+    /**
      * Crea un espacio desdoble a partir del DTO.
      * @param desdobleDto El DTO del espacio desdoble a crear.
      * @return La respuesta HTTP con el espacio creado.
@@ -232,7 +295,7 @@ public class AdminRestController
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @PostMapping(value = "/espacios/desdoble", consumes = "application/json")
-    public ResponseEntity<?> crearEspacioDesdoble(@RequestBody DesdobleDto desdobleDto)
+    public ResponseEntity<?> crearEspacioDesdoble(@RequestBody EspacioDesdobleDto desdobleDto)
     {
         try
         {
@@ -247,7 +310,7 @@ public class AdminRestController
             espacio.setEspacioId(espacioId);
 
             // Guardamos el espacio en el repositorio de desdoble
-            this.desdobleRepository.saveAndFlush(espacio);
+            this.espacioDesdobleRepository.saveAndFlush(espacio);
 
             // Logueamos
             log.info("Espacio desdoble creado correctamente");
@@ -270,6 +333,35 @@ public class AdminRestController
 
             // Devolvemos la excepción genérica
             return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage()); 
+        }
+    }
+
+    /**
+     * Obtiene la lista de espacios desdoble.
+     * @return La respuesta HTTP con la lista de espacios desdoble.
+     */
+    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+    @GetMapping(value = "/espacios/desdoble")
+    public ResponseEntity<?> obtenerEspaciosDesdoble()
+    {
+        try
+        {
+            // Obtenemos todos los espacios desdoble en formato DTO
+            List<EspacioDesdobleDto> espaciosDesdobleDto = this.espacioDesdobleRepository.findAllDto();
+
+            // Devolvemos la respuesta
+            return ResponseEntity.ok(espaciosDesdobleDto);
+        }
+        catch (Exception exception)
+        {
+            // Creamos la excepción genérica
+            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+
+            // Logueamos el error
+            log.error("Error generico al obtener los espacios desdoble: " + exception.getMessage(), exception);
+
+            // Devolvemos la excepción genérica
+            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
         }
     }
     
@@ -310,7 +402,7 @@ public class AdminRestController
         }
 
         // Buscamos el curso académico en la BBDD
-        Optional<CursoAcademico> cursoAcademicoEntity = this.cursoAcademicoRepository.findById(cursoAcademico);
+        Optional<CursoAcademico> cursoAcademicoEntity = this.cursoAcademicoRepository.findByCursoAcademico(cursoAcademico);
 
         // Validamos si el curso académico existe en la BBDD
         if (cursoAcademicoEntity.isEmpty())
@@ -339,21 +431,21 @@ public class AdminRestController
         espacioId.setNombre(espacioDto.getNombre());
 
         // Validamos si el espacio ya existe en el repositorio de sin docencia
-        if (this.sinDocenciaRepository.existsById(espacioId))
+        if (this.espacioSinDocenciaRepository.existsById(espacioId))
         {
             log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
             throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
         }
 
         // Validamos si el espacio ya existe en el repositorio de fijo
-        if (this.fijoRepository.existsById(espacioId))
+        if (this.espacioFijoRepository.existsById(espacioId))
         {
             log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_MESSAGE);
             throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_MESSAGE);
         }
 
         // Validamos si el espacio ya existe en el repositorio de desdoble
-        if (this.desdobleRepository.existsById(espacioId))
+        if (this.espacioDesdobleRepository.existsById(espacioId))
         {
             log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE);
             throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE);
@@ -361,4 +453,5 @@ public class AdminRestController
 
         return espacioId;
     }
+    
 }

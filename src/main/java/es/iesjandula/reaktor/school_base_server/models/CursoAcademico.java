@@ -7,6 +7,8 @@ import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioFijo;
 import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioSinDocencia;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -24,9 +26,14 @@ import lombok.NoArgsConstructor;
 @Entity
 public class CursoAcademico
 {
-	/** Curso académico */
+
+	/** ID del curso académico */
 	@Id
-	@Column(length = 30)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	/** Curso académico */
+	@Column(length = 30, unique = true)
 	private String cursoAcademico ; 
 	
     /** Seleccionado */

@@ -6,16 +6,15 @@ import jakarta.persistence.Embeddable;
 import lombok.Data;
 
 /**
- * Representa la clave primaria compuesta de la entidad Ocupa.
+ * Representa la clave primaria compuesta de la entidad OcupaEspacioDesdoble.
  * 
- * <p>Esta clase se utiliza para identificar de manera única los cursos que ocupan el espacio 
- * de desdoble.</p>
+ * <p>Esta clase se utiliza para identificar de manera única los cursos que ocupan el espacio desdoble.</p>
  * 
  * <p>Al implementar Serializable, puede ser utilizada como clave embebida en JPA.</p>
  */
 @Data
 @Embeddable
-public class OcupaId implements Serializable
+public class OcupaEspacioDesdobleId implements Serializable
 {
     /**
      * Serial version UID para garantizar la compatibilidad durante la serialización.

@@ -1,5 +1,8 @@
 package es.iesjandula.reaktor.school_base_server.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Clase de constantes utilizadas en el proyecto Espacios.
  * 
@@ -11,81 +14,92 @@ package es.iesjandula.reaktor.school_base_server.utils;
  */
 public class Constants
 {
-    // --- Mensajes generales ---
-	/** Mensaje al agregar un elemento correctamente */
-    public static final String ELEMENTO_AGREGADO = "Elemento agregado correctamente.";
-    
-    /** Mensaje al modificar un elemento correctamente */
-    public static final String ELEMENTO_MODIFICADO = "Elemento modificado correctamente.";
-    
-    /** Mensaje al eliminar un elemento correctamente */
-    public static final String ELEMENTO_ELIMINADO = "Elemento eliminado correctamente.";
-    
-    /** Mensaje al mostrar un elemento correctamente */
-    public static final String ELEMENTO_MOSTRADO = "Elemento mostrado correctamente.";
+    /******************************************/
+    /*********** CURSOS ACADÉMICOS ************/
+    /******************************************/
 
+    /** Lista de cursos académicos */
+    public static final List<String> CURSOS_ACADEMICOS = Arrays.asList("2025/2026", "2026/2027", "2027/2028", "2028/2029", 
+                                                                       "2029/2030", "2030/2031", "2031/2032",
+                                                                       "2032/2033", "2033/2034", "2034/2035",
+                                                                       "2035/2036", "2036/2037", "2037/2038",
+                                                                       "2038/2039", "2039/2040", "2040/2041",
+                                                                       "2041/2042", "2042/2043", "2043/2044",
+                                                                       "2044/2045", "2045/2046", "2046/2047",
+                                                                       "2047/2048", "2048/2049", "2049/2050");
+    /*******************************************/
+    /*************** PROPIEDADES ***************/
+    /*******************************************/
+    
+    /** Clave de la propiedad para el DDL Auto */
+    public static final String SPRING_JPA_HIBERNATE_DDL_AUTO = "spring.jpa.hibernate.ddl-auto";
 
-    // --- Errores de Categoría ---
-    /** Código de error genérico para Categoría */
-    public static final Integer ERR_CATEGORIA_CODE = 5;
-    public static final String ERR_CATEGORIA = "CATEGORIA_ERROR";
-    
-    /** Código y mensaje cuando el nombre de la categoría es nulo o vacío */
-    public static final Integer ERR_CATEGORIA_NOMBRE_NULO_VACIO_CODE = 6;
-    public static final String ERR_CATEGORIA_NOMBRE_NULO_VACIO = "El nombre de la categoría no puede ser nulo ni vacío.";
-    
-    /** Código y mensaje cuando la categoría ya existe */
-    public static final Integer ERR_CATEGORIA_EXISTE_CODE = 7;
-    public static final String ERR_CATEGORIA_EXISTE = "La categoría ya existe en el sistema.";
-    
-    /** Código y mensaje cuando la categoría no existe */
-    public static final Integer ERR_CATEGORIA_NO_EXISTE_CODE = 8;
-    public static final String ERR_CATEGORIA_NO_EXISTE = "La categoría no existe en el sistema.";
+    /** Clave de la propiedad para el curso académico */
+    public static final String VALOR_SPRING_JPA_HIBERNATE_DDL_AUTO = "create";
 
-    // --- Errores de Evento ---
-    /** Código de error genérico para Evento */
-    public static final Integer ERR_EVENTO_CODE = 9;
-    public static final String ERR_EVENTO = "EVENTO_ERROR";
-    
-    /** Código y mensaje cuando el título del evento es nulo o vacío */
-    public static final Integer ERR_EVENTO_TITULO_NULO_VACIO_CODE = 10;
-    public static final String ERR_EVENTO_TITULO_NULO_VACIO = "El título del evento no puede ser nulo ni vacío.";
-    
-    /** Código y mensaje cuando las fechas son inválidas */
-    public static final Integer ERR_EVENTO_FECHAS_INVALIDAS_CODE = 11;
-    public static final String ERR_EVENTO_FECHAS_INVALIDAS = "La fecha de fin no puede ser anterior a la fecha de inicio.";
-    
-    /** Código y mensaje cuando el evento ya existe */
-    public static final Integer ERR_EVENTO_EXISTE_CODE = 12;
-    public static final String ERR_EVENTO_EXISTE = "El evento ya existe en el sistema.";
-    
-    /** Código y mensaje cuando el evento no existe */
-    public static final Integer ERR_EVENTO_NO_EXISTE_CODE = 13;
-    public static final String ERR_EVENTO_NO_EXISTE = "El evento no existe en el sistema.";
+    /** Clave de la propiedad para el curso académico */
+    public static final String PARAM_YAML_CURSO_ACADEMICO_SELECCIONADO = "reaktor.curso_academico";
 
-    // --- Errores de Recordatorio ---
-    /** Código de error genérico para Recordatorio */
-    public static final Integer ERR_RECORDATORIO_CODE = 14;
-    public static final String ERR_RECORDATORIO = "RECORDATORIO_ERROR";
+    /** Valor de la propiedad para el curso académico */
+    public static final String VALOR_PARAM_YAML_CURSO_ACADEMICO_SELECCIONADO = "2025/2026";
+
+    /*******************************************/
+    /************ ERRORES GENERICOS ************/
+    /*******************************************/
+
+    /** Código de error genérico */
+    public static final Integer ERROR_GENERICO_CODE = 1;
     
-    /** Código y mensaje cuando la fecha del recordatorio es nula */
-    public static final Integer ERR_RECORDATORIO_FECHA_NULA_CODE = 15;
-    public static final String ERR_RECORDATORIO_FECHA_NULA = "La fecha del recordatorio no puede ser nula.";
-    
-    /** Código y mensaje cuando el recordatorio no está asociado a un evento */
-    public static final Integer ERR_RECORDATORIO_EVENTO_NULO_CODE = 16;
-    public static final String ERR_RECORDATORIO_EVENTO_NULO = "El recordatorio debe estar asociado a un evento.";
-    
-    /** Código y mensaje cuando el recordatorio ya existe */
-    public static final Integer ERR_RECORDATORIO_EXISTE_CODE = 17;
-    public static final String ERR_RECORDATORIO_EXISTE = "El recordatorio ya existe en el sistema.";
-    
-    /** Código y mensaje cuando el recordatorio no existe */
-    public static final Integer ERR_RECORDATORIO_NO_EXISTE_CODE = 18;
-    public static final String ERR_RECORDATORIO_NO_EXISTE = "El recordatorio no existe en el sistema.";
-	
- 	// --- Error de Servidor---
-    /** Código y mensaje para errores generales del servidor */
-    public static final Integer ERR_SERVIDOR_CODE = 20;
-    public static final String ERR_SERVIDOR = "Error de servidor.";
+    /** Mensaje de error genérico */
+    public static final String ERROR_GENERICO_MESSAGE = "Error genérico";
+
+    /*******************************************/
+    /********* ERRORES EN CURSO ACADÉMICO ******/
+    /*******************************************/
+
+    /** Código de error para el curso académico nulo o vacío */
+    public static final Integer ERR_CURSO_ACADEMICO_NULO_VACIO_CODE = 100;
+
+    /** Mensaje de error para el curso académico nulo o vacío */
+    public static final String ERR_CURSO_ACADEMICO_NULO_VACIO_MESSAGE = "El curso académico no puede ser nulo o vacío";
+
+    /** Código de error para el curso académico no existe */
+    public static final Integer ERR_CURSO_ACADEMICO_NO_EXISTE_CODE = 101;
+
+    /** Mensaje de error para el curso académico no existe */
+    public static final String ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE = "El curso académico no existe";
+
+    /*******************************************/
+    /*********** ERRORES EN ESPACIOS ***********/
+    /*******************************************/
+
+    /** Código de error para el curso académico nulo o vacío  */
+    public static final Integer ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_CODE   = 200;
+
+    /** Mensaje de error para el curso académico nulo o vacío */
+    public static final String ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_MESSAGE = "El curso académico no puede ser nulo o vacío";
+
+    /** Código de error para el nombre nulo o vacío */
+    public static final Integer ERR_ESPACIO_NOMBRE_NULO_VACIO_CODE = 201;
+
+    /** Mensaje de error para el nombre nulo o vacío */
+    public static final String ERR_ESPACIO_NOMBRE_NULO_VACIO_MESSAGE = "El nombre no puede ser nulo o vacío";
+
+    /** Código de error para el espacio ya existe */
+    public static final Integer ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_CODE = 202;
+
+    /** Mensaje de error para el espacio ya existe */
+    public static final String ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_MESSAGE = "El espacio ya existe en sin docencia";
+
+    /** Código de error para el espacio ya existe en fijo */
+    public static final Integer ERR_ESPACIO_YA_EXISTE_EN_FIJO_CODE = 203;
+
+    /** Mensaje de error para el espacio ya existe en fijo */
+    public static final String ERR_ESPACIO_YA_EXISTE_EN_FIJO_MESSAGE = "El espacio ya existe en fijo";
+
+    /** Código de error para el espacio ya existe en desdoble */
+    public static final Integer ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_CODE = 204;
+
+    /** Mensaje de error para el espacio ya existe en desdoble */
+    public static final String ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE = "El espacio ya existe en desdoble";
 }

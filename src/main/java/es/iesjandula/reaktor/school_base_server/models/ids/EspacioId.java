@@ -7,10 +7,10 @@ import jakarta.persistence.Embeddable;
 import lombok.Data;
 
 /**
- * Representa la clave primaria compuesta de la entidad Desdoble.
+ * Representa la clave primaria compuesta de la entidad Espacio.
  * 
  * <p>Esta clase se utiliza para identificar de manera única el espacio 
- * de desdoble.</p>
+ * mediante el curso académico y el nombre.</p>
  * 
  * <p>Al implementar Serializable, puede ser utilizada como clave embebida en JPA.</p>
  */

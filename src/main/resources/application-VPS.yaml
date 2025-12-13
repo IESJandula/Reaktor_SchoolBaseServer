@@ -13,7 +13,7 @@ logging:
     level:
         root: INFO
     file:
-        name: /tmp/reaktor_issuesServer.log
+        name: /tmp/reaktor_schoolBaseServer.log
         max-size: 1MB
         max-history: 10
         total-size-cap: 10MB
@@ -22,3 +22,4 @@ reaktor:
   urlCors: https://somos.iesjandula.es
   firebase_server_url: https://api.iesjandula.es/
   http_connection_timeout: 30000
+  curso_academico: 2025/2026

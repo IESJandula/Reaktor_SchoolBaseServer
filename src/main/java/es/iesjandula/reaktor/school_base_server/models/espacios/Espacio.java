@@ -1,4 +1,4 @@
-package es.iesjandula.reaktor.school_base_server.models;
+package es.iesjandula.reaktor.school_base_server.models.espacios;
 
 import es.iesjandula.reaktor.school_base_server.models.ids.EspacioId;
 import jakarta.persistence.EmbeddedId;

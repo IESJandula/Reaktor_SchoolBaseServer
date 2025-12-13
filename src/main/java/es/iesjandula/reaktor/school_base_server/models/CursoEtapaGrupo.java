@@ -3,6 +3,7 @@ package es.iesjandula.reaktor.school_base_server.models;
 
 import java.util.List;
 
+import es.iesjandula.reaktor.school_base_server.models.espacios.EspacioFijo;
 import es.iesjandula.reaktor.school_base_server.models.ids.CursoEtapaGrupoId;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -24,11 +25,11 @@ public class CursoEtapaGrupo
 	@EmbeddedId
     private CursoEtapaGrupoId cursoEtapaGrupoId;
 	
-	/** Lista de ocupas del curso etapa grupo. */
+	/** Lista de ocupas de espacio desdoble del curso etapa grupo. */
 	@OneToMany(mappedBy = "cursoEtapaGrupo")
-	private List<Ocupa> ocupas;
+	private List<OcupaEspacioDesdoble> ocupasEspacioDesdoble;
 	
 	/** Fijo del curso etapa grupo. */
 	@OneToOne(mappedBy = "cursoEtapaGrupo")
-	private Fijo fijo;
+	private EspacioFijo espacioFijo;
 }

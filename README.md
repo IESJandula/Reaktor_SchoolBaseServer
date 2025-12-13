@@ -35,6 +35,37 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
 
 
 
+### Cursos, Etapas y Grupos
+
+<table>
+   <tr>
+      <th>METODO</th>
+      <th>URL</th>
+      <th>DESCRIPCION</th>
+      <th>ROL REQUERIDO</th>
+   </tr>
+   <tr>
+      <td>🟢 GET</td>
+      <td>/school_base_server/admin/cursos_etapas_grupos</td>
+      <td>Obtiene la lista de todos los cursos, etapas y grupos disponibles en el sistema.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
+      <td>🟡 POST</td>
+      <td>/school_base_server/admin/cursos_etapas_grupos</td>
+      <td>Crea un nuevo curso, etapa y grupo. El curso, etapa y grupo no debe existir previamente.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
+      <td>🔴 DELETE</td>
+      <td>/school_base_server/admin/cursos_etapas_grupos</td>
+      <td>Elimina un curso, etapa y grupo específico del sistema.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+</table>
+
+
+
 ### Espacios Sin Docencia
 
 <table>
@@ -54,6 +85,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <td>🟡 POST</td>
       <td>/school_base_server/admin/espacios/sin_docencia</td>
       <td>Crea un nuevo espacio sin docencia. El espacio no debe existir previamente en ningún repositorio.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
+      <td>🔴 DELETE</td>
+      <td>/school_base_server/admin/espacios/sin_docencia</td>
+      <td>Elimina un espacio sin docencia específico del sistema.</td>
       <td>ADMINISTRADOR</td>
    </tr>
 </table>
@@ -81,6 +118,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <td>Crea un nuevo espacio fijo. El espacio no debe existir previamente en ningún repositorio.</td>
       <td>ADMINISTRADOR</td>
    </tr>
+   <tr>
+      <td>🔴 DELETE</td>
+      <td>/school_base_server/admin/espacios/fijo</td>
+      <td>Elimina un espacio fijo específico del sistema.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
 </table>
 
 
@@ -104,6 +147,12 @@ Este servicio maneja las solicitudes HTTP relacionadas con la gestión de cursos
       <td>🟡 POST</td>
       <td>/school_base_server/admin/espacios/desdoble</td>
       <td>Crea un nuevo espacio desdoble. El espacio no debe existir previamente en ningún repositorio.</td>
+      <td>ADMINISTRADOR</td>
+   </tr>
+   <tr>
+      <td>🔴 DELETE</td>
+      <td>/school_base_server/admin/espacios/desdoble</td>
+      <td>Elimina un espacio desdoble específico del sistema.</td>
       <td>ADMINISTRADOR</td>
    </tr>
 </table>
@@ -288,6 +337,245 @@ Headers:
 
 
 
+## 🔹 Endpoints de Cursos, Etapas y Grupos
+
+
+
+### 🟢 GET - Obtener lista de cursos, etapas y grupos
+
+```
+GET localhost:8092/school_base_server/admin/cursos_etapas_grupos
+```
+
+Endpoint que permite recuperar la lista completa de cursos, etapas y grupos disponibles en el sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+
+
+**Ejemplo de petición:**
+
+```
+GET localhost:8092/school_base_server/admin/cursos_etapas_grupos
+Headers:
+  Authorization: Bearer <token>
+```
+
+
+
+**Respuesta:** Lista de objetos `CursoEtapaGrupoDto` con la siguiente estructura:
+
+```json
+[
+  {
+    "curso": 1,
+    "etapa": "ESO",
+    "grupo": "A"
+  },
+  {
+    "curso": 1,
+    "etapa": "ESO",
+    "grupo": "B"
+  }
+]
+```
+
+
+
+**Códigos de respuesta:**
+
+- `200 OK`: Lista obtenida correctamente
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
+### 🟡 POST - Crear curso, etapa y grupo
+
+```
+POST localhost:8092/school_base_server/admin/cursos_etapas_grupos
+```
+
+Endpoint que permite crear un nuevo curso, etapa y grupo. El curso, etapa y grupo no debe existir previamente en el sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+- `Content-Type`: application/json
+
+
+
+**Body requerido (JSON):**
+
+```json
+{
+  "curso": 1,
+  "etapa": "ESO",
+  "grupo": "A"
+}
+```
+
+**Campos del body:**
+
+- `curso` (Integer, requerido): Número del curso. No puede ser nulo.
+
+- `etapa` (String, requerido): Etapa educativa (ej: "ESO", "BACHILLERATO"). No puede ser nulo o vacío.
+
+- `grupo` (String, requerido): Grupo del curso (ej: "A", "B", "C"). No puede ser nulo o vacío.
+
+
+
+**Ejemplo de petición:**
+
+```
+POST localhost:8092/school_base_server/admin/cursos_etapas_grupos
+Headers:
+  Authorization: Bearer <token>
+  Content-Type: application/json
+Body:
+{
+  "curso": 1,
+  "etapa": "ESO",
+  "grupo": "A"
+}
+```
+
+
+
+**Respuesta:** 200 OK si el curso, etapa y grupo se crea correctamente.
+
+
+
+**Códigos de respuesta:**
+
+- `200 OK`: Curso, etapa y grupo creado correctamente
+
+- `400 Bad Request`: Solicitud incorrecta - El curso, etapa y grupo es inválido o ya existe. Posibles errores:
+  - "El curso académico no puede ser nulo o vacío"
+  - "La etapa no puede ser nula o vacía"
+  - "El grupo no puede ser nulo o vacío"
+  - "El curso, etapa y grupo ya existe"
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
+### 🔴 DELETE - Eliminar curso, etapa y grupo
+
+```
+DELETE localhost:8092/school_base_server/admin/cursos_etapas_grupos
+```
+
+Endpoint que permite eliminar un curso, etapa y grupo específico del sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+- `Content-Type`: application/json
+
+
+
+**Body requerido (JSON):**
+
+```json
+{
+  "curso": 1,
+  "etapa": "ESO",
+  "grupo": "A"
+}
+```
+
+**Campos del body:**
+
+- `curso` (Integer, requerido): Número del curso a eliminar.
+
+- `etapa` (String, requerido): Etapa educativa a eliminar.
+
+- `grupo` (String, requerido): Grupo del curso a eliminar.
+
+
+
+**Ejemplo de petición:**
+
+```
+DELETE localhost:8092/school_base_server/admin/cursos_etapas_grupos
+Headers:
+  Authorization: Bearer <token>
+  Content-Type: application/json
+Body:
+{
+  "curso": 1,
+  "etapa": "ESO",
+  "grupo": "A"
+}
+```
+
+
+
+**Respuesta:** 204 No Content si el curso, etapa y grupo se elimina correctamente.
+
+
+
+**Códigos de respuesta:**
+
+- `204 No Content`: Curso, etapa y grupo eliminado correctamente
+
+- `400 Bad Request`: Solicitud incorrecta - El curso, etapa y grupo no existe o los datos son incorrectos. Posibles errores:
+  - "El curso académico no puede ser nulo o vacío"
+  - "La etapa no puede ser nula o vacía"
+  - "El grupo no puede ser nulo o vacío"
+  - "El curso, etapa y grupo no existe"
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
 ## 🔹 Endpoints de Espacios Sin Docencia
 
 
@@ -429,6 +717,87 @@ Headers:
 **Códigos de respuesta:**
 
 - `200 OK`: Lista obtenida correctamente
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
+### 🔴 DELETE - Eliminar espacio sin docencia
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/sin_docencia
+```
+
+Endpoint que permite eliminar un espacio sin docencia específico del sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+- `Content-Type`: application/json
+
+
+
+**Body requerido (JSON):**
+
+```json
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Aula 101"
+}
+```
+
+**Campos del body:**
+
+- `cursoAcademico` (String, requerido): Curso académico del espacio a eliminar.
+
+- `nombre` (String, requerido): Nombre del espacio a eliminar.
+
+
+
+**Ejemplo de petición:**
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/sin_docencia
+Headers:
+  Authorization: Bearer <token>
+  Content-Type: application/json
+Body:
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Aula 101"
+}
+```
+
+
+
+**Respuesta:** 204 No Content si el espacio se elimina correctamente.
+
+
+
+**Códigos de respuesta:**
+
+- `204 No Content`: Espacio sin docencia eliminado correctamente
+
+- `400 Bad Request`: Solicitud incorrecta - El espacio no existe o los datos son incorrectos. Posibles errores:
+  - "El curso académico no puede ser nulo o vacío"
+  - "El nombre no puede ser nulo o vacío"
+  - "El curso académico no existe"
+  - "El espacio no existe en sin docencia"
 
 - `401 Unauthorized`: No autorizado - Se requiere autenticación
 
@@ -596,6 +965,87 @@ Headers:
 
 
 
+### 🔴 DELETE - Eliminar espacio fijo
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/fijo
+```
+
+Endpoint que permite eliminar un espacio fijo específico del sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+- `Content-Type`: application/json
+
+
+
+**Body requerido (JSON):**
+
+```json
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Laboratorio Informática"
+}
+```
+
+**Campos del body:**
+
+- `cursoAcademico` (String, requerido): Curso académico del espacio a eliminar.
+
+- `nombre` (String, requerido): Nombre del espacio a eliminar.
+
+
+
+**Ejemplo de petición:**
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/fijo
+Headers:
+  Authorization: Bearer <token>
+  Content-Type: application/json
+Body:
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Laboratorio Informática"
+}
+```
+
+
+
+**Respuesta:** 204 No Content si el espacio se elimina correctamente.
+
+
+
+**Códigos de respuesta:**
+
+- `204 No Content`: Espacio fijo eliminado correctamente
+
+- `400 Bad Request`: Solicitud incorrecta - El espacio no existe o los datos son incorrectos. Posibles errores:
+  - "El curso académico no puede ser nulo o vacío"
+  - "El nombre no puede ser nulo o vacío"
+  - "El curso académico no existe"
+  - "El espacio no existe en fijo"
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
+
+
+
+---
+
+
+
 ## 🔹 Endpoints de Espacios Desdobles
 
 
@@ -743,6 +1193,87 @@ Body:
 
 
 **Nota:** El sistema valida que el espacio no exista previamente en ninguno de los tres tipos de repositorios (sin docencia, fijo o desdoble) antes de crearlo.
+
+
+
+---
+
+
+
+### 🔴 DELETE - Eliminar espacio desdoble
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/desdoble
+```
+
+Endpoint que permite eliminar un espacio desdoble específico del sistema.
+
+
+
+**Rol requerido:** ADMINISTRADOR
+
+
+
+**Headers requeridos:**
+
+- `Authorization`: Bearer token JWT
+
+- `Content-Type`: application/json
+
+
+
+**Body requerido (JSON):**
+
+```json
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Aula Desdoble 1"
+}
+```
+
+**Campos del body:**
+
+- `cursoAcademico` (String, requerido): Curso académico del espacio a eliminar.
+
+- `nombre` (String, requerido): Nombre del espacio a eliminar.
+
+
+
+**Ejemplo de petición:**
+
+```
+DELETE localhost:8092/school_base_server/admin/espacios/desdoble
+Headers:
+  Authorization: Bearer <token>
+  Content-Type: application/json
+Body:
+{
+  "cursoAcademico": "2025/2026",
+  "nombre": "Aula Desdoble 1"
+}
+```
+
+
+
+**Respuesta:** 204 No Content si el espacio se elimina correctamente.
+
+
+
+**Códigos de respuesta:**
+
+- `204 No Content`: Espacio desdoble eliminado correctamente
+
+- `400 Bad Request`: Solicitud incorrecta - El espacio no existe o los datos son incorrectos. Posibles errores:
+  - "El curso académico no puede ser nulo o vacío"
+  - "El nombre no puede ser nulo o vacío"
+  - "El curso académico no existe"
+  - "El espacio no existe en desdoble"
+
+- `401 Unauthorized`: No autorizado - Se requiere autenticación
+
+- `403 Forbidden`: Prohibido - Se requiere rol de administrador
+
+- `500 Internal Server Error`: Error interno del servidor
 
 
 

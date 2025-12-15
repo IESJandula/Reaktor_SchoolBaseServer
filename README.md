@@ -673,7 +673,7 @@ Body:
 GET localhost:8092/school_base_server/admin/espacios/sin_docencia
 ```
 
-Endpoint que permite recuperar la lista completa de espacios sin docencia disponibles en el sistema.
+Endpoint que permite recuperar la lista completa de espacios sin docencia disponibles en el sistema **para un curso académico concreto**.
 
 
 
@@ -684,6 +684,7 @@ Endpoint que permite recuperar la lista completa de espacios sin docencia dispon
 **Headers requeridos:**
 
 - `Authorization`: Bearer token JWT
+- `cursoAcademico`: Curso académico del que se quieren obtener los espacios sin docencia (ej: "2025/2026")
 
 
 
@@ -693,6 +694,7 @@ Endpoint que permite recuperar la lista completa de espacios sin docencia dispon
 GET localhost:8092/school_base_server/admin/espacios/sin_docencia
 Headers:
   Authorization: Bearer <token>
+  cursoAcademico: 2025/2026
 ```
 
 
@@ -908,7 +910,7 @@ Body:
 GET localhost:8092/school_base_server/admin/espacios/fijo
 ```
 
-Endpoint que permite recuperar la lista completa de espacios fijos disponibles en el sistema.
+Endpoint que permite recuperar la lista completa de espacios fijos disponibles en el sistema **para un curso académico concreto**.
 
 
 
@@ -919,6 +921,7 @@ Endpoint que permite recuperar la lista completa de espacios fijos disponibles e
 **Headers requeridos:**
 
 - `Authorization`: Bearer token JWT
+- `cursoAcademico`: Curso académico del que se quieren obtener los espacios fijos (ej: "2025/2026")
 
 
 
@@ -928,6 +931,7 @@ Endpoint que permite recuperar la lista completa de espacios fijos disponibles e
 GET localhost:8092/school_base_server/admin/espacios/fijo
 Headers:
   Authorization: Bearer <token>
+  cursoAcademico: 2025/2026
 ```
 
 
@@ -1056,7 +1060,7 @@ Body:
 GET localhost:8092/school_base_server/admin/espacios/desdoble
 ```
 
-Endpoint que permite recuperar la lista completa de espacios desdobles disponibles en el sistema.
+Endpoint que permite recuperar la lista completa de espacios desdobles disponibles en el sistema **para un curso académico concreto**.
 
 
 
@@ -1067,6 +1071,7 @@ Endpoint que permite recuperar la lista completa de espacios desdobles disponibl
 **Headers requeridos:**
 
 - `Authorization`: Bearer token JWT
+- `cursoAcademico`: Curso académico del que se quieren obtener los espacios desdobles (ej: "2025/2026")
 
 
 
@@ -1076,6 +1081,7 @@ Endpoint que permite recuperar la lista completa de espacios desdobles disponibl
 GET localhost:8092/school_base_server/admin/espacios/desdoble
 Headers:
   Authorization: Bearer <token>
+  cursoAcademico: 2025/2026
 ```
 
 

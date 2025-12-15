@@ -385,12 +385,15 @@ public class AdminRestController
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @GetMapping(value = "/espacios/sin_docencia")
-    public ResponseEntity<?> obtenerEspaciosSinDocencia()
+    public ResponseEntity<?> obtenerEspaciosSinDocencia(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
     {
         try
         {
-            // Obtenemos todos los espacios sin docencia en formato DTO
-            List<EspacioSinDocenciaDto> espaciosSinDocenciaDto = this.espacioSinDocenciaRepository.findAllDto();
+            // Validamos el curso académico
+            this.validarCursoAcademico(cursoAcademico);
+
+            // Obtenemos todos los espacios sin docencia en formato DTO del curso académico
+            List<EspacioSinDocenciaDto> espaciosSinDocenciaDto = this.espacioSinDocenciaRepository.buscarPorCursoAcademico(cursoAcademico);
 
             // Devolvemos la respuesta
             return ResponseEntity.ok(espaciosSinDocenciaDto);
@@ -509,16 +512,20 @@ public class AdminRestController
 
     /**
      * Obtiene la lista de espacios fijo.
+     * @param cursoAcademico El curso académico a obtener los espacios fijos.
      * @return La respuesta HTTP con la lista de espacios fijo.
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @GetMapping(value = "/espacios/fijo")
-    public ResponseEntity<?> obtenerEspaciosFijo()
+    public ResponseEntity<?> obtenerEspaciosFijo(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
     {
         try
         {
-            // Obtenemos todos los espacios fijo en formato DTO
-            List<EspacioFijoDto> espaciosFijoDto = this.espacioFijoRepository.findAllDto();
+            // Validamos el curso académico
+            this.validarCursoAcademico(cursoAcademico);
+
+            // Obtenemos todos los espacios fijo en formato DTO del curso académico
+            List<EspacioFijoDto> espaciosFijoDto = this.espacioFijoRepository.buscarPorCursoAcademico(cursoAcademico);
 
             // Devolvemos la respuesta
             return ResponseEntity.ok(espaciosFijoDto);
@@ -637,16 +644,20 @@ public class AdminRestController
 
     /**
      * Obtiene la lista de espacios desdoble.
+     * @param cursoAcademico El curso académico a obtener los espacios desdobles.
      * @return La respuesta HTTP con la lista de espacios desdoble.
      */
     @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
     @GetMapping(value = "/espacios/desdoble")
-    public ResponseEntity<?> obtenerEspaciosDesdoble()
+    public ResponseEntity<?> obtenerEspaciosDesdoble(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
     {
         try
         {
-            // Obtenemos todos los espacios desdoble en formato DTO
-            List<EspacioDesdobleDto> espaciosDesdobleDto = this.espacioDesdobleRepository.findAllDto();
+            // Validamos el curso académico
+            this.validarCursoAcademico(cursoAcademico);
+
+            // Obtenemos todos los espacios desdoble en formato DTO del curso académico
+            List<EspacioDesdobleDto> espaciosDesdobleDto = this.espacioDesdobleRepository.buscarPorCursoAcademico(cursoAcademico);
 
             // Devolvemos la respuesta
             return ResponseEntity.ok(espaciosDesdobleDto);

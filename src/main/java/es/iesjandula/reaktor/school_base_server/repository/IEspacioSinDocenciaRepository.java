@@ -20,9 +20,11 @@ public interface IEspacioSinDocenciaRepository extends JpaRepository<EspacioSinD
 {
     /**
      * Obtiene todos los espacios sin docencia en formato DTO.
+     * @param cursoAcademico El curso académico a obtener los espacios sin docencia.
      * @return La lista de espacios sin docencia en formato DTO.
      */
     @Query("SELECT new es.iesjandula.reaktor.school_base_server.dtos.EspacioSinDocenciaDto(e.espacioId.cursoAcademico, e.espacioId.nombre) " +
-           "FROM EspacioSinDocencia e")
-    List<EspacioSinDocenciaDto> findAllDto();
+           "FROM EspacioSinDocencia e " +
+           "WHERE e.espacioId.cursoAcademico = :cursoAcademico")
+    List<EspacioSinDocenciaDto> buscarPorCursoAcademico(String cursoAcademico);
 }

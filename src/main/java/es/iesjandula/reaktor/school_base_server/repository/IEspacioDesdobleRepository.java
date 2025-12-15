@@ -20,9 +20,11 @@ public interface IEspacioDesdobleRepository extends JpaRepository<EspacioDesdobl
 {
     /**
      * Obtiene todos los espacios desdobles en formato DTO.
+     * @param cursoAcademico El curso académico a obtener los espacios desdobles.
      * @return La lista de espacios desdobles en formato DTO.
      */
     @Query("SELECT new es.iesjandula.reaktor.school_base_server.dtos.EspacioDesdobleDto(e.espacioId.cursoAcademico, e.espacioId.nombre) " +
-           "FROM EspacioDesdoble e")
-    List<EspacioDesdobleDto> findAllDto();
+           "FROM EspacioDesdoble e " +
+           "WHERE e.espacioId.cursoAcademico = :cursoAcademico")
+    List<EspacioDesdobleDto> buscarPorCursoAcademico(String cursoAcademico);
 }

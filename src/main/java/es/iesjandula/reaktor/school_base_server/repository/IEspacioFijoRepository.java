@@ -20,9 +20,11 @@ public interface IEspacioFijoRepository extends JpaRepository<EspacioFijo, Espac
 {
     /**
      * Obtiene todos los espacios fijos en formato DTO.
+     * @param cursoAcademico El curso académico a obtener los espacios fijos.
      * @return La lista de espacios fijos en formato DTO.
      */
     @Query("SELECT new es.iesjandula.reaktor.school_base_server.dtos.EspacioFijoDto(e.espacioId.cursoAcademico, e.espacioId.nombre) " +
-           "FROM EspacioFijo e")
-    List<EspacioFijoDto> findAllDto();
+           "FROM EspacioFijo e " +
+           "WHERE e.espacioId.cursoAcademico = :cursoAcademico")
+    List<EspacioFijoDto> buscarPorCursoAcademico(String cursoAcademico);
 }

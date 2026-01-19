@@ -29,7 +29,7 @@ public interface ICursoAcademicoRepository extends JpaRepository<CursoAcademico,
      */
     @Query("SELECT new es.iesjandula.reaktor.school_base_server.dtos.CursoAcademicoDto(c.cursoAcademico, c.seleccionado) " +
            "FROM CursoAcademico c " +
-           "ORDER BY c.cursoAcademico DESC")
+           "ORDER BY c.cursoAcademico ASC")
     List<CursoAcademicoDto> findAllDto();
 
     /**

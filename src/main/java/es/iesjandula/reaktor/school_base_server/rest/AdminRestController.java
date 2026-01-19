@@ -42,775 +42,855 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/school_base_server/admin")
 public class AdminRestController
 {
-    /** Repositorio de cursos académicos */
+	/** Repositorio de cursos académicos */
 	@Autowired
 	private ICursoAcademicoRepository cursoAcademicoRepository;
 
-    /** Repositorio de curso etapa grupo */
+	/** Repositorio de curso etapa grupo */
 	@Autowired
 	private ICursoEtapaGrupoRepository cursoEtapaGrupoRepository;
 
-    /** Repositorio de sin docencia */
+	/** Repositorio de sin docencia */
 	@Autowired
 	private IEspacioSinDocenciaRepository espacioSinDocenciaRepository;
 
-    /** Repositorio de fijo */
-    @Autowired
-    private IEspacioFijoRepository espacioFijoRepository;
+	/** Repositorio de fijo */
+	@Autowired
+	private IEspacioFijoRepository espacioFijoRepository;
 
-    /** Repositorio de desdoble */
+	/** Repositorio de desdoble */
 	@Autowired
 	private IEspacioDesdobleRepository espacioDesdobleRepository;
 
-    /**
-     * Obtiene la lista de cursos académicos.
-     * @return La respuesta HTTP con la lista de cursos académicos.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @GetMapping(value = "/cursos_academicos")
-    public ResponseEntity<?> obtenerCursosAcademicos()
-    {
-        try
-        {
-            // Obtenemos todos los cursos académicos en formato DTO
-            List<CursoAcademicoDto> cursosAcademicosDto = this.cursoAcademicoRepository.findAllDto();
+	/**
+	 * Obtiene la lista de cursos académicos.
+	 * 
+	 * @return La respuesta HTTP con la lista de cursos académicos.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@GetMapping(value = "/cursos_academicos")
+	public ResponseEntity<?> obtenerCursosAcademicos()
+	{
+		try
+		{
+			// Obtenemos todos los cursos académicos en formato DTO
+			List<CursoAcademicoDto> cursosAcademicosDto = this.cursoAcademicoRepository.findAllDto();
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok(cursosAcademicosDto);
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Devolvemos la respuesta
+			return ResponseEntity.ok(cursosAcademicosDto);
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al obtener los cursos académicos: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al obtener los cursos académicos: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-    /**
-     * Asigna un curso académico a los espacios.
-     * @param cursoAcademico El curso académico a asignar.
-     * @return La respuesta HTTP con el curso académico asignado.
-     * @throws ReaktorSchoolBaseServerException Si el curso académico es nulo o vacío.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @PostMapping(value = "/cursos_academicos")
-    public ResponseEntity<?> seleccionarCursoAcademico(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
-    {
-        try
-        {
-            // Validamos el curso académico
-            CursoAcademico cursoAcademicoEntity = this.validarCursoAcademico(cursoAcademico);
+	/**
+	 * Asigna un curso académico a los espacios.
+	 * 
+	 * @param cursoAcademico El curso académico a asignar.
+	 * @return La respuesta HTTP con el curso académico asignado.
+	 * @throws ReaktorSchoolBaseServerException Si el curso académico es nulo o
+	 *                                          vacío.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@PostMapping(value = "/cursos_academicos")
+	public ResponseEntity<?> seleccionarCursoAcademico(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
+	{
+		try
+		{
+			// Validamos el curso académico
+			CursoAcademico cursoAcademicoEntity = this.validarCursoAcademico(cursoAcademico);
 
-            // Quitamos la selección de todos los cursos académicos
-            this.cursoAcademicoRepository.deseleccionarTodosLosCursosAcademicos();
+			// Quitamos la selección de todos los cursos académicos
+			this.cursoAcademicoRepository.deseleccionarTodosLosCursosAcademicos();
 
-            // Seteamos el curso académico seleccionado
-            cursoAcademicoEntity.setSeleccionado(true);
+			// Seteamos el curso académico seleccionado
+			cursoAcademicoEntity.setSeleccionado(true);
 
-            // Guardamos el curso académico en la BBDD
-            this.cursoAcademicoRepository.saveAndFlush(cursoAcademicoEntity);
+			// Guardamos el curso académico en la BBDD
+			this.cursoAcademicoRepository.saveAndFlush(cursoAcademicoEntity);
 
-            // Logueamos
-            log.info("Curso académico seleccionado correctamente");
+			// Logueamos
+			log.info("Curso académico seleccionado correctamente");
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok().build();
-        }
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            // Devolvemos la excepción en la respuesta
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Devolvemos la respuesta
+			return ResponseEntity.ok().build();
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		{
+			// Devolvemos la excepción en la respuesta
+			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al seleccionar el curso académico: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al seleccionar el curso académico: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-    /**
-     * Crea un curso, etapa y grupo de espacio sin docencia a partir del DTO.
-     * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a crear.
-     * @return La respuesta HTTP con el curso, etapa y grupo de espacio sin docencia creado.
-     * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o vacío.
-     */
+	/**
+	 * Crea un curso, etapa y grupo de espacio sin docencia a partir del DTO.
+	 * 
+	 * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a crear.
+	 * @return La respuesta HTTP con el curso, etapa y grupo de espacio sin docencia
+	 *         creado.
+	 * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o
+	 *                                          vacío.
+	 */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/cursos_etapas_grupos", consumes = "application/json")
 	public ResponseEntity<?> crearCursoEtapaGrupo(@RequestBody CursoEtapaGrupoDto cursoEtapaGrupoDto)
 	{
 		try
 		{
-            // Validamos el DTO del curso, etapa y grupo
+			// Validamos el DTO del curso, etapa y grupo
 			this.validarCursoAcademicoEtapaGrupoDto(cursoEtapaGrupoDto);
-			
-            // Validamos si ya existe el curso, etapa y grupo en el repositorio de curso etapa grupo
-            CursoEtapaGrupoId cursoEtapaGrupoId = this.validarCreacionCursoEtapaGrupo(cursoEtapaGrupoDto);
 
-            // Creamos el curso, etapa y grupo a partir del DTO
-            CursoEtapaGrupo cursoEtapaGrupo = new CursoEtapaGrupo();
-            cursoEtapaGrupo.setCursoEtapaGrupoId(cursoEtapaGrupoId);
+			// Validamos si ya existe el curso, etapa y grupo en el repositorio de curso
+			// etapa grupo
+			CursoEtapaGrupoId cursoEtapaGrupoId = this.validarCreacionCursoEtapaGrupo(cursoEtapaGrupoDto);
 
-            // Guardamos el curso, etapa y grupo en el repositorio de curso etapa grupo
-            this.cursoEtapaGrupoRepository.saveAndFlush(cursoEtapaGrupo);
+			// Creamos el curso, etapa y grupo a partir del DTO
+			CursoEtapaGrupo cursoEtapaGrupo = new CursoEtapaGrupo();
+			cursoEtapaGrupo.setCursoEtapaGrupoId(cursoEtapaGrupoId);
+
+			// Guardamos el curso, etapa y grupo en el repositorio de curso etapa grupo
+			this.cursoEtapaGrupoRepository.saveAndFlush(cursoEtapaGrupo);
 
 			// Logueamos
 			log.info("Curso, etapa y grupo creado correctamente");
 
-            // Devolvemos la respuesta
+			// Devolvemos la respuesta
 			return ResponseEntity.ok().build();
 
-		} 
-		catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
 		{
 			// Devolvemos la excepción en la respuesta
 			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-		}
-		catch (Exception exception) 
+		} catch (Exception exception)
 		{
-            // Creamos la excepción genérica
-			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al crear el curso, etapa y grupo: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al crear el curso, etapa y grupo: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage()); 
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
 		}
 	}
 
-    /**
-     * Valida si el curso, etapa y grupo ya existe en cualquiera de los tres repositorios.
-     * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a validar.
-     * @return El curso, etapa y grupo encontrado o null si no existe.
-     * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo ya existe.
-     */
-    private CursoEtapaGrupoId validarCreacionCursoEtapaGrupo(CursoEtapaGrupoDto cursoEtapaGrupoDto) throws ReaktorSchoolBaseServerException
-    {
-        // Creamos la clave primaria compuesta del curso, etapa y grupo a partir del DTO
-        CursoEtapaGrupoId cursoEtapaGrupoId = new CursoEtapaGrupoId();
+	/**
+	 * Valida si el curso, etapa y grupo ya existe en cualquiera de los tres
+	 * repositorios.
+	 * 
+	 * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a validar.
+	 * @return El curso, etapa y grupo encontrado o null si no existe.
+	 * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo ya
+	 *                                          existe.
+	 */
+	private CursoEtapaGrupoId validarCreacionCursoEtapaGrupo(CursoEtapaGrupoDto cursoEtapaGrupoDto)
+			throws ReaktorSchoolBaseServerException
+	{
+		// Creamos la clave primaria compuesta del curso, etapa y grupo a partir del DTO
+		CursoEtapaGrupoId cursoEtapaGrupoId = new CursoEtapaGrupoId();
 
-        // Asignamos los valores de la clave primaria compuesta
-        cursoEtapaGrupoId.setCurso(cursoEtapaGrupoDto.getCurso());
-        cursoEtapaGrupoId.setEtapa(cursoEtapaGrupoDto.getEtapa());
-        cursoEtapaGrupoId.setGrupo(cursoEtapaGrupoDto.getGrupo());
+		// Asignamos los valores de la clave primaria compuesta
+		cursoEtapaGrupoId.setCurso(cursoEtapaGrupoDto.getCurso());
+		cursoEtapaGrupoId.setEtapa(cursoEtapaGrupoDto.getEtapa());
+		cursoEtapaGrupoId.setGrupo(cursoEtapaGrupoDto.getGrupo());
 
-        // Buscamos el curso, etapa y grupo en el repositorio de curso etapa grupo
-        if (this.cursoEtapaGrupoRepository.existsById(cursoEtapaGrupoId))
-        {
-            log.error(Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_CODE, Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_MESSAGE);
-        }
+		// Buscamos el curso, etapa y grupo en el repositorio de curso etapa grupo
+		if (this.cursoEtapaGrupoRepository.existsById(cursoEtapaGrupoId))
+		{
+			log.error(Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_CODE,
+					Constants.ERR_CURSO_ETAPA_GRUPO_YA_EXISTE_MESSAGE);
+		}
 
-        // Devolvemos el curso, etapa y grupo encontrado o null si no existe
-        return cursoEtapaGrupoId;
-    }
+		// Devolvemos el curso, etapa y grupo encontrado o null si no existe
+		return cursoEtapaGrupoId;
+	}
 
-    /**
-     * Obtiene la lista de cursos, etapas y grupos.
-     * @return La respuesta HTTP con la lista de cursos, etapas y grupos.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @GetMapping(value = "/cursos_etapas_grupos")
-    public ResponseEntity<?> obtenerCursosEtapasGrupos()
-    {
-        try
-        {
-            // Obtenemos todos los cursos, etapas y grupos en formato DTO
-            List<CursoEtapaGrupoDto> cursosEtapasGruposDto = this.cursoEtapaGrupoRepository.findAllDto();
+	/**
+	 * Obtiene la lista de cursos, etapas y grupos.
+	 * 
+	 * @return La respuesta HTTP con la lista de cursos, etapas y grupos.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@GetMapping(value = "/cursos_etapas_grupos")
+	public ResponseEntity<?> obtenerCursosEtapasGrupos()
+	{
+		try
+		{
+			// Obtenemos todos los cursos, etapas y grupos en formato DTO
+			List<CursoEtapaGrupoDto> cursosEtapasGruposDto = this.cursoEtapaGrupoRepository.findAllDto();
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok(cursosEtapasGruposDto);
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Devolvemos la respuesta
+			return ResponseEntity.ok(cursosEtapasGruposDto);
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al obtener los cursos, etapas y grupos: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al obtener los cursos, etapas y grupos: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-    /**
-     * Borra un curso, etapa y grupo a partir del DTO.
-     * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a borrar.
-     * @return La respuesta HTTP con el curso, etapa y grupo borrado.
-     * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o vacío.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @DeleteMapping(value = "/cursos_etapas_grupos", consumes = "application/json")
-    public ResponseEntity<?> borrarCursoEtapaGrupo(@RequestBody CursoEtapaGrupoDto cursoEtapaGrupoDto)
-    {
-        try
-        {
-            // Validamos el DTO del curso, etapa y grupo
-            this.validarCursoAcademicoEtapaGrupoDto(cursoEtapaGrupoDto);
+	/**
+	 * Borra un curso, etapa y grupo a partir del DTO.
+	 * 
+	 * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a borrar.
+	 * @return La respuesta HTTP con el curso, etapa y grupo borrado.
+	 * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o
+	 *                                          vacío.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@DeleteMapping(value = "/cursos_etapas_grupos", consumes = "application/json")
+	public ResponseEntity<?> borrarCursoEtapaGrupo(@RequestBody CursoEtapaGrupoDto cursoEtapaGrupoDto)
+	{
+		try
+		{
+			// Validamos el DTO del curso, etapa y grupo
+			this.validarCursoAcademicoEtapaGrupoDto(cursoEtapaGrupoDto);
 
-            // Creamos la clave primaria compuesta del curso, etapa y grupo a partir del DTO
-            CursoEtapaGrupoId cursoEtapaGrupoId = new CursoEtapaGrupoId();
+			// Creamos la clave primaria compuesta del curso, etapa y grupo a partir del DTO
+			CursoEtapaGrupoId cursoEtapaGrupoId = new CursoEtapaGrupoId();
 
-            // Asignamos los valores de la clave primaria compuesta
-            cursoEtapaGrupoId.setCurso(cursoEtapaGrupoDto.getCurso());
-            cursoEtapaGrupoId.setEtapa(cursoEtapaGrupoDto.getEtapa());
-            cursoEtapaGrupoId.setGrupo(cursoEtapaGrupoDto.getGrupo());
+			// Asignamos los valores de la clave primaria compuesta
+			cursoEtapaGrupoId.setCurso(cursoEtapaGrupoDto.getCurso());
+			cursoEtapaGrupoId.setEtapa(cursoEtapaGrupoDto.getEtapa());
+			cursoEtapaGrupoId.setGrupo(cursoEtapaGrupoDto.getGrupo());
 
-            // Validamos si el curso, etapa y grupo ya existe en el repositorio de curso etapa grupo
-            if (!this.cursoEtapaGrupoRepository.existsById(cursoEtapaGrupoId))
-            {
-                log.error(Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE);
-                throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_CODE, Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE);
-            }
+			// Validamos si el curso, etapa y grupo ya existe en el repositorio de curso
+			// etapa grupo
+			if (!this.cursoEtapaGrupoRepository.existsById(cursoEtapaGrupoId))
+			{
+				log.error(Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE);
+				throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_CODE,
+						Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE);
+			}
 
-            // Borramos el curso, etapa y grupo en el repositorio de curso etapa grupo
-            this.cursoEtapaGrupoRepository.deleteById(cursoEtapaGrupoId);
+			// Borramos el curso, etapa y grupo en el repositorio de curso etapa grupo
+			this.cursoEtapaGrupoRepository.deleteById(cursoEtapaGrupoId);
 
-            // Logueamos
-            log.info("Curso, etapa y grupo borrado correctamente");
+			// Logueamos
+			log.info("Curso, etapa y grupo borrado correctamente");
 
-            // Devolvemos la respuesta
-            return ResponseEntity.noContent().build();
-        }
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            // Devolvemos la excepción en la respuesta
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Devolvemos la respuesta
+			return ResponseEntity.noContent().build();
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		{
+			// Devolvemos la excepción en la respuesta
+			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al borrar el curso, etapa y grupo: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al borrar el curso, etapa y grupo: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
-    
-    /**
-     * Valida que el DTO del curso, etapa y grupo no sea nulo o vacío.
-     * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a validar.
-     * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o vacío.
-     */
-    private void validarCursoAcademicoEtapaGrupoDto(CursoEtapaGrupoDto cursoEtapaGrupoDto) throws ReaktorSchoolBaseServerException
-    {
-        // Validamos el curso
-        if (cursoEtapaGrupoDto.getCurso() == null)
-        {
-            log.error(Constants.ERR_CURSO_NULO_VACIO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ACADEMICO_NULO_VACIO_CODE, Constants.ERR_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
-        }
-        // Validamos la etapa
-        if (cursoEtapaGrupoDto.getEtapa() == null || cursoEtapaGrupoDto.getEtapa().isEmpty())
-        {
-            log.error(Constants.ERR_ETAPA_NULO_VACIO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ETAPA_NULO_VACIO_CODE, Constants.ERR_ETAPA_NULO_VACIO_MESSAGE);
-        }
-        // Validamos el grupo
-        if (cursoEtapaGrupoDto.getGrupo() == null || cursoEtapaGrupoDto.getGrupo().isEmpty())
-        {
-            log.error(Constants.ERR_GRUPO_NULO_VACIO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_GRUPO_NULO_VACIO_CODE, Constants.ERR_GRUPO_NULO_VACIO_MESSAGE);
-        }
-    }
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-    /**
-     * Crea un espacio sin docencia a partir del DTO.
-     * @param espacioSinDocenciaDto El DTO del espacio sin docencia a crear.
-     * @return La respuesta HTTP con el espacio creado.
-     * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
-     */
+	/**
+	 * Valida que el DTO del curso, etapa y grupo no sea nulo o vacío.
+	 * 
+	 * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a validar.
+	 * @throws ReaktorSchoolBaseServerException Si el curso, etapa y grupo es nulo o
+	 *                                          vacío.
+	 */
+	private void validarCursoAcademicoEtapaGrupoDto(CursoEtapaGrupoDto cursoEtapaGrupoDto)
+			throws ReaktorSchoolBaseServerException
+	{
+		// Validamos el curso
+		if (cursoEtapaGrupoDto.getCurso() == null)
+		{
+			log.error(Constants.ERR_CURSO_NULO_VACIO_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ACADEMICO_NULO_VACIO_CODE,
+					Constants.ERR_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
+		}
+		// Validamos la etapa
+		if (cursoEtapaGrupoDto.getEtapa() == null || cursoEtapaGrupoDto.getEtapa().isEmpty())
+		{
+			log.error(Constants.ERR_ETAPA_NULO_VACIO_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_ETAPA_NULO_VACIO_CODE,
+					Constants.ERR_ETAPA_NULO_VACIO_MESSAGE);
+		}
+		// Validamos el grupo
+		if (cursoEtapaGrupoDto.getGrupo() == null || cursoEtapaGrupoDto.getGrupo().isEmpty())
+		{
+			log.error(Constants.ERR_GRUPO_NULO_VACIO_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_GRUPO_NULO_VACIO_CODE,
+					Constants.ERR_GRUPO_NULO_VACIO_MESSAGE);
+		}
+	}
+
+	/**
+	 * Crea un espacio sin docencia a partir del DTO.
+	 * 
+	 * @param espacioSinDocenciaDto El DTO del espacio sin docencia a crear.
+	 * @return La respuesta HTTP con el espacio creado.
+	 * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
+	 */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/sin_docencia", consumes = "application/json")
 	public ResponseEntity<?> crearEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto espacioSinDocenciaDto)
 	{
 		try
+	    {
+	        this.validarEspacioDto(espacioSinDocenciaDto);
+
+	        EspacioId espacioId = new EspacioId();
+	        espacioId.setCursoAcademico(espacioSinDocenciaDto.getCursoAcademico());
+	        espacioId.setNombre(espacioSinDocenciaDto.getNombre());
+
+	        Optional<EspacioSinDocencia> existente = this.espacioSinDocenciaRepository.findById(espacioId);
+
+	        if (existente.isPresent())
+	        {
+	            this.espacioSinDocenciaRepository.saveAndFlush(existente.get());
+	        }
+	        else
+	        {
+	            // 🔥 SI EXISTE COMO FIJO → ROMPER RELACIÓN
+	            Optional<EspacioFijo> fijoOpt = this.espacioFijoRepository.findById(espacioId);
+	            if (fijoOpt.isPresent())
+	            {
+	                EspacioFijo fijo = fijoOpt.get();
+	                CursoEtapaGrupo ceg = fijo.getCursoEtapaGrupo();
+	                if (ceg != null)
+	                {
+	                    ceg.setEspacioFijo(null);
+	                    this.cursoEtapaGrupoRepository.saveAndFlush(ceg);
+	                }
+	                this.espacioFijoRepository.delete(fijo);
+	            }
+
+	            // 🔥 BORRAR EN DESDOBLE
+	            if (this.espacioDesdobleRepository.existsById(espacioId))
+	            {
+	                this.espacioDesdobleRepository.deleteById(espacioId);
+	            }
+
+	            EspacioSinDocencia espacio = new EspacioSinDocencia();
+	            espacio.setEspacioId(espacioId);
+	            this.espacioSinDocenciaRepository.saveAndFlush(espacio);
+	        }
+
+	        return ResponseEntity.ok().build();
+	    }
+	    catch (ReaktorSchoolBaseServerException ex)
+	    {
+	        return ResponseEntity.badRequest().body(ex.getBodyExceptionMessage());
+	    }
+	    catch (Exception exception)
+	    {
+	        log.error("Error al crear espacio sin docencia", exception);
+	        ReaktorSchoolBaseServerException ex =
+	                new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE,
+	                        Constants.ERROR_GENERICO_MESSAGE);
+	        return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+	                .body(ex.getBodyExceptionMessage());
+	    }
+	}
+
+	/**
+	 * Obtiene la lista de espacios sin docencia.
+	 * 
+	 * @return La respuesta HTTP con la lista de espacios sin docencia.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@GetMapping(value = "/espacios/sin_docencia")
+	public ResponseEntity<?> obtenerEspaciosSinDocencia(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
+	{
+		try
 		{
-            // Validamos el DTO del espacio
-			this.validarEspacioDto(espacioSinDocenciaDto);
-			
-            // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarCreacionEspacio(espacioSinDocenciaDto);
+			// Validamos el curso académico
+			this.validarCursoAcademico(cursoAcademico);
 
-            // Creamos el espacio a partir del DTO
-            EspacioSinDocencia espacio = new EspacioSinDocencia();
-            espacio.setEspacioId(espacioId);
+			// Obtenemos todos los espacios sin docencia en formato DTO del curso académico
+			List<EspacioSinDocenciaDto> espaciosSinDocenciaDto = this.espacioSinDocenciaRepository
+					.buscarPorCursoAcademico(cursoAcademico);
 
-            // Guardamos el espacio en el repositorio de sin docencia
-            this.espacioSinDocenciaRepository.saveAndFlush(espacio);
-
-			// Logueamos
-			log.info("Espacio sin docencia creado correctamente");
-
-            // Devolvemos la respuesta
-			return ResponseEntity.ok().build();
-
-		} 
-		catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+			// Devolvemos la respuesta
+			return ResponseEntity.ok(espaciosSinDocenciaDto);
+		} catch (Exception exception)
 		{
-			// Devolvemos la excepción en la respuesta
-			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-		}
-		catch (Exception exception) 
-		{
-            // Creamos la excepción genérica
-			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Logueamos el error
-            log.error("Error generico al crear el espacio sin docencia: " + exception.getMessage(), exception);
+			// Logueamos el error
+			log.error("Error generico al obtener los espacios sin docencia: " + exception.getMessage(), exception);
 
-            // Devolvemos la excepción genérica
-			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage()); 
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
 		}
 	}
 
-    /**
-     * Obtiene la lista de espacios sin docencia.
-     * @return La respuesta HTTP con la lista de espacios sin docencia.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @GetMapping(value = "/espacios/sin_docencia")
-    public ResponseEntity<?> obtenerEspaciosSinDocencia(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
-    {
-        try
-        {
-            // Validamos el curso académico
-            this.validarCursoAcademico(cursoAcademico);
+	/***
+	 * Borrar un espacio sin docencia
+	 * 
+	 * @param espacioSinDocenciaDto El DTO del espacio sin docencia a borrar.
+	 * @return ResponseEntity con el resultado de la borrada
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@DeleteMapping(value = "/espacios/sin_docencia", consumes = "application/json")
+	public ResponseEntity<?> borrarEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto espacioSinDocenciaDto)
+	{
+		try
+		{
+			// Validamos el DTO del espacio
+			this.validarEspacioDto(espacioSinDocenciaDto);
 
-            // Obtenemos todos los espacios sin docencia en formato DTO del curso académico
-            List<EspacioSinDocenciaDto> espaciosSinDocenciaDto = this.espacioSinDocenciaRepository.buscarPorCursoAcademico(cursoAcademico);
+			// Creamos la clave primaria compuesta del espacio a partir del DTO
+			EspacioId espacioId = new EspacioId();
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok(espaciosSinDocenciaDto);
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Asignamos los valores de la clave primaria compuesta
+			espacioId.setCursoAcademico(espacioSinDocenciaDto.getCursoAcademico());
+			espacioId.setNombre(espacioSinDocenciaDto.getNombre());
 
-            // Logueamos el error
-            log.error("Error generico al obtener los espacios sin docencia: " + exception.getMessage(), exception);
+			// Validamos si el espacio ya existe en el repositorio de sin docencia
+			if (!this.espacioSinDocenciaRepository.existsById(espacioId))
+			{
+				log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
+				throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_CODE,
+						Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
+			}
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Borrar el espacio en el repositorio de sin docencia
+			this.espacioSinDocenciaRepository.deleteById(espacioId);
 
-    /***
-     * Borrar un espacio sin docencia
-     * @param espacioSinDocenciaDto El DTO del espacio sin docencia a borrar.
-     * @return ResponseEntity con el resultado de la borrada
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @DeleteMapping(value = "/espacios/sin_docencia", consumes = "application/json")
-    public ResponseEntity<?> borrarEspacioSinDocencia(@RequestBody EspacioSinDocenciaDto espacioSinDocenciaDto)
-    {
-        try
-        {
-            // Validamos el DTO del espacio
-            this.validarEspacioDto(espacioSinDocenciaDto);
+			// Logueamos
+			log.info("Espacio sin docencia borrado correctamente");
 
-            // Creamos la clave primaria compuesta del espacio a partir del DTO
-            EspacioId espacioId = new EspacioId();
+			// Devolvemos la respuesta correcta
+			return ResponseEntity.noContent().build();
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		{
+			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		} catch (Exception exception)
+		{
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Asignamos los valores de la clave primaria compuesta
-            espacioId.setCursoAcademico(espacioSinDocenciaDto.getCursoAcademico());
-            espacioId.setNombre(espacioSinDocenciaDto.getNombre());
+			log.error("Error generico al borrar el espacio sin docencia: " + exception.getMessage(), exception);
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-            // Validamos si el espacio ya existe en el repositorio de sin docencia
-            if (!this.espacioSinDocenciaRepository.existsById(espacioId))
-            {
-                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
-                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
-            }
-    
-            // Borrar el espacio en el repositorio de sin docencia
-            this.espacioSinDocenciaRepository.deleteById(espacioId);
-
-            // Logueamos
-            log.info("Espacio sin docencia borrado correctamente");
-    
-            // Devolvemos la respuesta correcta
-            return ResponseEntity.noContent().build();
-        }
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception)
-        {
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
-
-            log.error("Error generico al borrar el espacio sin docencia: " + exception.getMessage(), exception);
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
-
-    /**
-     * Crea un espacio fijo a partir del DTO.
-     * @param espacioFijoDto El DTO del espacio fijo a crear.
-     * @return La respuesta HTTP con el espacio creado.
-     * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
-     */
+	/**
+	 * Crea un espacio fijo a partir del DTO.
+	 * 
+	 * @param espacioFijoDto El DTO del espacio fijo a crear.
+	 * @return La respuesta HTTP con el espacio creado.
+	 * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
+	 */
 	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
 	@PostMapping(value = "/espacios/fijo", consumes = "application/json")
 	public ResponseEntity<?> crearEspacioFijo(@RequestBody EspacioFijoDto espacioFijoDto)
 	{
-        try
-        {
-            // Validamos el DTO del espacio
-            this.validarEspacioDto(espacioFijoDto);
-            
-            // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarCreacionEspacio(espacioFijoDto);
+		try
+	    {
+	        this.validarEspacioDto(espacioFijoDto);
 
-            // Creamos el espacio a partir del DTO
-            EspacioFijo espacio = new EspacioFijo();
-            espacio.setEspacioId(espacioId);
+	        if (espacioFijoDto.getCurso() == null ||
+	            espacioFijoDto.getEtapa() == null ||
+	            espacioFijoDto.getGrupo() == null)
+	        {
+	            throw new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE,
+	                    "Debes indicar curso, etapa y grupo");
+	        }
 
-            // Guardamos el espacio en el repositorio de fijo
-            this.espacioFijoRepository.saveAndFlush(espacio);
+	        EspacioId espacioId = new EspacioId();
+	        espacioId.setCursoAcademico(espacioFijoDto.getCursoAcademico());
+	        espacioId.setNombre(espacioFijoDto.getNombre());
 
-            // Logueamos
-            log.info("Espacio fijo creado correctamente");
+	        CursoEtapaGrupoId cegId = new CursoEtapaGrupoId();
+	        cegId.setCurso(espacioFijoDto.getCurso());
+	        cegId.setEtapa(espacioFijoDto.getEtapa());
+	        cegId.setGrupo(espacioFijoDto.getGrupo());
 
-            return ResponseEntity.ok().build();
+	        CursoEtapaGrupo cursoEtapaGrupo = this.cursoEtapaGrupoRepository.findById(cegId)
+	                .orElseThrow(() -> new ReaktorSchoolBaseServerException(
+	                        Constants.ERROR_GENERICO_CODE,
+	                        "El grupo indicado no existe"
+	                ));
 
-        } 
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            // Devolvemos la excepción en la respuesta
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception) 
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+	        Optional<EspacioFijo> existente = this.espacioFijoRepository.findById(espacioId);
 
-            // Logueamos el error
-            log.error("Error generico al crear el espacio fijo: " + exception.getMessage(), exception);
+	        if (existente.isPresent())
+	        {
+	            EspacioFijo espacio = existente.get();
+	            espacio.setCursoEtapaGrupo(cursoEtapaGrupo);
+	            this.espacioFijoRepository.saveAndFlush(espacio);
+	        }
+	        else
+	        {
+	            // 🔥 BORRAR EN OTROS TIPOS
+	            if (this.espacioSinDocenciaRepository.existsById(espacioId))
+	            {
+	                this.espacioSinDocenciaRepository.deleteById(espacioId);
+	            }
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage()); 
-        }
-    }
+	            if (this.espacioDesdobleRepository.existsById(espacioId))
+	            {
+	                this.espacioDesdobleRepository.deleteById(espacioId);
+	            }
 
-    /**
-     * Obtiene la lista de espacios fijo.
-     * @param cursoAcademico El curso académico a obtener los espacios fijos.
-     * @return La respuesta HTTP con la lista de espacios fijo.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @GetMapping(value = "/espacios/fijo")
-    public ResponseEntity<?> obtenerEspaciosFijo(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
-    {
-        try
-        {
-            // Validamos el curso académico
-            this.validarCursoAcademico(cursoAcademico);
+	            EspacioFijo espacio = new EspacioFijo();
+	            espacio.setEspacioId(espacioId);
+	            espacio.setCursoEtapaGrupo(cursoEtapaGrupo);
+	            this.espacioFijoRepository.saveAndFlush(espacio);
+	        }
 
-            // Obtenemos todos los espacios fijo en formato DTO del curso académico
-            List<EspacioFijoDto> espaciosFijoDto = this.espacioFijoRepository.buscarPorCursoAcademico(cursoAcademico);
+	        return ResponseEntity.ok().build();
+	    }
+	    catch (ReaktorSchoolBaseServerException ex)
+	    {
+	        return ResponseEntity.badRequest().body(ex.getBodyExceptionMessage());
+	    }
+	    catch (Exception exception)
+	    {
+	        log.error("Error al crear espacio fijo", exception);
+	        ReaktorSchoolBaseServerException ex =
+	                new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE,
+	                        Constants.ERROR_GENERICO_MESSAGE);
+	        return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+	                .body(ex.getBodyExceptionMessage());
+	    }
+	}
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok(espaciosFijoDto);
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+	/**
+	 * Obtiene la lista de espacios fijo.
+	 * 
+	 * @param cursoAcademico El curso académico a obtener los espacios fijos.
+	 * @return La respuesta HTTP con la lista de espacios fijo.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@GetMapping(value = "/espacios/fijo")
+	public ResponseEntity<?> obtenerEspaciosFijo(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
+	{
+		try
+		{
+			// Validamos el curso académico
+			this.validarCursoAcademico(cursoAcademico);
 
-            // Logueamos el error
-            log.error("Error generico al obtener los espacios fijo: " + exception.getMessage(), exception);
+			// Obtenemos todos los espacios fijo en formato DTO del curso académico
+			List<EspacioFijoDto> espaciosFijoDto = this.espacioFijoRepository.buscarPorCursoAcademico(cursoAcademico);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Devolvemos la respuesta
+			return ResponseEntity.ok(espaciosFijoDto);
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-    /***
-     * Borrar un espacio fijo
-     * @param espacioFijoDto El DTO del espacio fijo a borrar.
-     * @return ResponseEntity con el resultado de la borrada
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @DeleteMapping(value = "/espacios/fijo", consumes = "application/json")
-    public ResponseEntity<?> borrarEspacioFijo(@RequestBody EspacioFijoDto espacioFijoDto)
-    {
-        try
-        {
-            // Validamos el DTO del espacio
+			// Logueamos el error
+			log.error("Error generico al obtener los espacios fijo: " + exception.getMessage(), exception);
+
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
+
+	/***
+	 * Borrar un espacio fijo
+	 * 
+	 * @param espacioFijoDto El DTO del espacio fijo a borrar.
+	 * @return ResponseEntity con el resultado de la borrada
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@DeleteMapping(value = "/espacios/fijo", consumes = "application/json")
+	public ResponseEntity<?> borrarEspacioFijo(@RequestBody EspacioFijoDto espacioFijoDto)
+	{
+		try
+		{
+			// Validamos el DTO del espacio
 			this.validarEspacioDto(espacioFijoDto);
 
-            // Creamos la clave primaria compuesta del espacio a partir del DTO
-            EspacioId espacioId = new EspacioId();
+			// Creamos la clave primaria compuesta del espacio a partir del DTO
+			EspacioId espacioId = new EspacioId();
 
-            // Asignamos los valores de la clave primaria compuesta
-            espacioId.setCursoAcademico(espacioFijoDto.getCursoAcademico());
-            espacioId.setNombre(espacioFijoDto.getNombre());
+			// Asignamos los valores de la clave primaria compuesta
+			espacioId.setCursoAcademico(espacioFijoDto.getCursoAcademico());
+			espacioId.setNombre(espacioFijoDto.getNombre());
 
-            // Validamos si el espacio ya existe en el repositorio de fijo
-            if (!this.espacioFijoRepository.existsById(espacioId))
-            {
-                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
-                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
-            }
-    
-            // Borrar el espacio en el repositorio de fijo
-            this.espacioFijoRepository.deleteById(espacioId);
+			// Validamos si el espacio ya existe en el repositorio de fijo
+			if (!this.espacioFijoRepository.existsById(espacioId))
+			{
+				log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
+				throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_CODE,
+						Constants.ERR_ESPACIO_NO_EXISTE_EN_FIJO_MESSAGE);
+			}
 
-            // Logueamos
-            log.info("Espacio fijo borrado correctamente");
-    
-            // Devolvemos la respuesta correcta
-            return ResponseEntity.noContent().build();
-        }
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception)
-        {
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Borrar el espacio en el repositorio de fijo
+			this.espacioFijoRepository.deleteById(espacioId);
 
-            log.error("Error generico al borrar el espacio fijo: " + exception.getMessage(), exception);
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Logueamos
+			log.info("Espacio fijo borrado correctamente");
 
-    /**
-     * Crea un espacio desdoble a partir del DTO.
-     * @param espacioDesdobleDto El DTO del espacio desdoble a crear.
-     * @return La respuesta HTTP con el espacio creado.
-     * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @PostMapping(value = "/espacios/desdoble", consumes = "application/json")
-    public ResponseEntity<?> crearEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
-    {
-        try
-        {
-            // Validamos el DTO del espacio
-            this.validarEspacioDto(espacioDesdobleDto);
-            
-            // Validamos si ya existe el espacio en cualquiera de los tres repositorios
-            EspacioId espacioId = this.validarCreacionEspacio(espacioDesdobleDto);
+			// Devolvemos la respuesta correcta
+			return ResponseEntity.noContent().build();
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		{
+			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		} catch (Exception exception)
+		{
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Creamos el espacio a partir del DTO
-            EspacioDesdoble espacio = new EspacioDesdoble();
-            espacio.setEspacioId(espacioId);
+			log.error("Error generico al borrar el espacio fijo: " + exception.getMessage(), exception);
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-            // Guardamos el espacio en el repositorio de desdoble
-            this.espacioDesdobleRepository.saveAndFlush(espacio);
+	/**
+	 * Crea un espacio desdoble a partir del DTO.
+	 * 
+	 * @param espacioDesdobleDto El DTO del espacio desdoble a crear.
+	 * @return La respuesta HTTP con el espacio creado.
+	 * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@PostMapping(value = "/espacios/desdoble", consumes = "application/json")
+	public ResponseEntity<?> crearEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
+	{
+		try
+	    {
+	        this.validarEspacioDto(espacioDesdobleDto);
 
-            // Logueamos
-            log.info("Espacio desdoble creado correctamente");
+	        EspacioId espacioId = new EspacioId();
+	        espacioId.setCursoAcademico(espacioDesdobleDto.getCursoAcademico());
+	        espacioId.setNombre(espacioDesdobleDto.getNombre());
 
-            return ResponseEntity.ok().build();
+	        Optional<EspacioDesdoble> existente = this.espacioDesdobleRepository.findById(espacioId);
 
-        } 
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            // Devolvemos la excepción en la respuesta
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception) 
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+	        if (existente.isPresent())
+	        {
+	            this.espacioDesdobleRepository.saveAndFlush(existente.get());
+	        }
+	        else
+	        {
+	            // 🔥 SI EXISTE COMO FIJO → ROMPER RELACIÓN
+	            Optional<EspacioFijo> fijoOpt = this.espacioFijoRepository.findById(espacioId);
+	            if (fijoOpt.isPresent())
+	            {
+	                EspacioFijo fijo = fijoOpt.get();
+	                CursoEtapaGrupo ceg = fijo.getCursoEtapaGrupo();
+	                if (ceg != null)
+	                {
+	                    ceg.setEspacioFijo(null);
+	                    this.cursoEtapaGrupoRepository.saveAndFlush(ceg);
+	                }
+	                this.espacioFijoRepository.delete(fijo);
+	            }
 
-            // Logueamos el error
-            log.error("Error generico al crear el espacio desdoble: " + exception.getMessage(), exception);
+	            // 🔥 BORRAR EN SIN DOCENCIA
+	            if (this.espacioSinDocenciaRepository.existsById(espacioId))
+	            {
+	                this.espacioSinDocenciaRepository.deleteById(espacioId);
+	            }
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage()); 
-        }
-    }
+	            EspacioDesdoble espacio = new EspacioDesdoble();
+	            espacio.setEspacioId(espacioId);
+	            this.espacioDesdobleRepository.saveAndFlush(espacio);
+	        }
 
-    /**
-     * Obtiene la lista de espacios desdoble.
-     * @param cursoAcademico El curso académico a obtener los espacios desdobles.
-     * @return La respuesta HTTP con la lista de espacios desdoble.
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @GetMapping(value = "/espacios/desdoble")
-    public ResponseEntity<?> obtenerEspaciosDesdoble(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
-    {
-        try
-        {
-            // Validamos el curso académico
-            this.validarCursoAcademico(cursoAcademico);
+	        return ResponseEntity.ok().build();
+	    }
+	    catch (ReaktorSchoolBaseServerException ex)
+	    {
+	        return ResponseEntity.badRequest().body(ex.getBodyExceptionMessage());
+	    }
+	    catch (Exception exception)
+	    {
+	        log.error("Error al crear espacio desdoble", exception);
+	        ReaktorSchoolBaseServerException ex =
+	                new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE,
+	                        Constants.ERROR_GENERICO_MESSAGE);
+	        return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+	                .body(ex.getBodyExceptionMessage());
+	    }
+	}
 
-            // Obtenemos todos los espacios desdoble en formato DTO del curso académico
-            List<EspacioDesdobleDto> espaciosDesdobleDto = this.espacioDesdobleRepository.buscarPorCursoAcademico(cursoAcademico);
+	/**
+	 * Obtiene la lista de espacios desdoble.
+	 * 
+	 * @param cursoAcademico El curso académico a obtener los espacios desdobles.
+	 * @return La respuesta HTTP con la lista de espacios desdoble.
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@GetMapping(value = "/espacios/desdoble")
+	public ResponseEntity<?> obtenerEspaciosDesdoble(@RequestHeader(value = "cursoAcademico") String cursoAcademico)
+	{
+		try
+		{
+			// Validamos el curso académico
+			this.validarCursoAcademico(cursoAcademico);
 
-            // Devolvemos la respuesta
-            return ResponseEntity.ok(espaciosDesdobleDto);
-        }
-        catch (Exception exception)
-        {
-            // Creamos la excepción genérica
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Obtenemos todos los espacios desdoble en formato DTO del curso académico
+			List<EspacioDesdobleDto> espaciosDesdobleDto = this.espacioDesdobleRepository
+					.buscarPorCursoAcademico(cursoAcademico);
 
-            // Logueamos el error
-            log.error("Error generico al obtener los espacios desdoble: " + exception.getMessage(), exception);
+			// Devolvemos la respuesta
+			return ResponseEntity.ok(espaciosDesdobleDto);
+		} catch (Exception exception)
+		{
+			// Creamos la excepción genérica
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-            // Devolvemos la excepción genérica
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
+			// Logueamos el error
+			log.error("Error generico al obtener los espacios desdoble: " + exception.getMessage(), exception);
 
-    /***
-     * Borrar un espacio desdoble   
-     * @param espacioDesdobleDto El DTO del espacio desdoble a borrar.
-     * @return ResponseEntity con el resultado de la borrada
-     */
-    @PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-    @DeleteMapping(value = "/espacios/desdoble", consumes = "application/json")
-    public ResponseEntity<?> borrarEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
-    {
-        try
-        {
-            // Validamos el DTO del espacio
-            this.validarEspacioDto(espacioDesdobleDto);
+			// Devolvemos la excepción genérica
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-            // Creamos la clave primaria compuesta del espacio a partir del DTO
-            EspacioId espacioId = new EspacioId();
+	/***
+	 * Borrar un espacio desdoble
+	 * 
+	 * @param espacioDesdobleDto El DTO del espacio desdoble a borrar.
+	 * @return ResponseEntity con el resultado de la borrada
+	 */
+	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
+	@DeleteMapping(value = "/espacios/desdoble", consumes = "application/json")
+	public ResponseEntity<?> borrarEspacioDesdoble(@RequestBody EspacioDesdobleDto espacioDesdobleDto)
+	{
+		try
+		{
+			// Validamos el DTO del espacio
+			this.validarEspacioDto(espacioDesdobleDto);
 
-            // Asignamos los valores de la clave primaria compuesta
-            espacioId.setCursoAcademico(espacioDesdobleDto.getCursoAcademico());
-            espacioId.setNombre(espacioDesdobleDto.getNombre());
+			// Creamos la clave primaria compuesta del espacio a partir del DTO
+			EspacioId espacioId = new EspacioId();
 
-            // Validamos si el espacio ya existe en el repositorio de desdoble
-            if (!this.espacioDesdobleRepository.existsById(espacioId))
-            {
-                log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
-                throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_CODE, Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
-            }
-    
-            // Borrar el espacio en el repositorio de desdoble
-            this.espacioDesdobleRepository.deleteById(espacioId);
+			// Asignamos los valores de la clave primaria compuesta
+			espacioId.setCursoAcademico(espacioDesdobleDto.getCursoAcademico());
+			espacioId.setNombre(espacioDesdobleDto.getNombre());
 
-            // Logueamos
-            log.info("Espacio desdoble borrado correctamente");
-    
-            // Devolvemos la respuesta correcta
-            return ResponseEntity.noContent().build();
-        }
-        catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
-        {
-            return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-        catch (Exception exception)
-        {
-            ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
+			// Validamos si el espacio ya existe en el repositorio de desdoble
+			if (!this.espacioDesdobleRepository.existsById(espacioId))
+			{
+				log.error(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
+				throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_CODE,
+						Constants.ERR_ESPACIO_NO_EXISTE_EN_DESDOBLE_MESSAGE);
+			}
 
-            log.error("Error generico al borrar el espacio desdoble: " + exception.getMessage(), exception);
-            return ResponseEntity.status(Constants.ERROR_GENERICO_CODE).body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-        }
-    }
-    
-    /**
-     * Valida que el DTO del espacio no sea nulo o vacío en cualquiera de sus campos.
-     * @param espacioDto El DTO del espacio a validar.
-     * @return El curso académico encontrado.
-     * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
-     */
-    private CursoAcademico validarEspacioDto(EspacioDto espacioDto) throws ReaktorSchoolBaseServerException
-    {
-        // Validamos el curso académico
-        CursoAcademico cursoAcademicoEntity = this.validarCursoAcademico(espacioDto.getCursoAcademico());
+			// Borrar el espacio en el repositorio de desdoble
+			this.espacioDesdobleRepository.deleteById(espacioId);
 
-        // Validamos el nombre
-        if (espacioDto.getNombre() == null || espacioDto.getNombre().isEmpty())
-        {
-            log.error(Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_CODE, Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_MESSAGE);
-        }
+			// Logueamos
+			log.info("Espacio desdoble borrado correctamente");
 
-        // Devolvemos el curso académico encontrado
-        return cursoAcademicoEntity;
-    }
+			// Devolvemos la respuesta correcta
+			return ResponseEntity.noContent().build();
+		} catch (ReaktorSchoolBaseServerException reaktorSchoolBaseServerException)
+		{
+			return ResponseEntity.badRequest().body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		} catch (Exception exception)
+		{
+			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
+					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
 
-    /**
-     * Valida que el curso académico no sea nulo o vacío.
-     * @param cursoAcademico El curso académico a validar.
-     * @return El curso académico encontrado.
-     * @throws ReaktorSchoolBaseServerException Si el curso académico es nulo o vacío o no existe en la BBDD.
-     */
-    private CursoAcademico validarCursoAcademico(String cursoAcademico) throws ReaktorSchoolBaseServerException
-    {
-        if (cursoAcademico == null || cursoAcademico.isEmpty())
-        {
-            log.error(Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_CODE, Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
-        }
+			log.error("Error generico al borrar el espacio desdoble: " + exception.getMessage(), exception);
+			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
+					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
+		}
+	}
 
-        // Buscamos el curso académico en la BBDD
-        Optional<CursoAcademico> cursoAcademicoEntity = this.cursoAcademicoRepository.findByCursoAcademico(cursoAcademico);
+	/**
+	 * Valida que el DTO del espacio no sea nulo o vacío en cualquiera de sus
+	 * campos.
+	 * 
+	 * @param espacioDto El DTO del espacio a validar.
+	 * @return El curso académico encontrado.
+	 * @throws ReaktorSchoolBaseServerException Si el espacio es nulo o vacío.
+	 */
+	private CursoAcademico validarEspacioDto(EspacioDto espacioDto) throws ReaktorSchoolBaseServerException
+	{
+		// Validamos el curso académico
+		CursoAcademico cursoAcademicoEntity = this.validarCursoAcademico(espacioDto.getCursoAcademico());
 
-        // Validamos si el curso académico existe en la BBDD
-        if (cursoAcademicoEntity.isEmpty())
-        {
-            log.error(Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_CODE, Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE);
-        }
+		// Validamos el nombre
+		if (espacioDto.getNombre() == null || espacioDto.getNombre().isEmpty())
+		{
+			log.error(Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_CODE,
+					Constants.ERR_ESPACIO_NOMBRE_NULO_VACIO_MESSAGE);
+		}
 
-        // Devolvemos el curso académico encontrado
-        return cursoAcademicoEntity.get();
-    }
+		// Devolvemos el curso académico encontrado
+		return cursoAcademicoEntity;
+	}
 
-    /**
-     * Valida si el espacio ya existe en cualquiera de los tres repositorios.
-     * @param espacioDto El DTO del espacio a validar.
-     * @return La clave primaria compuesta del espacio.
-     * @throws ReaktorSchoolBaseServerException Si el espacio ya existe.
-     */
-    private EspacioId validarCreacionEspacio(EspacioDto espacioDto) throws ReaktorSchoolBaseServerException
-    {
-        // Creamos la clave primaria compuesta del espacio a partir del DTO
-        EspacioId espacioId = new EspacioId();
+	/**
+	 * Valida que el curso académico no sea nulo o vacío.
+	 * 
+	 * @param cursoAcademico El curso académico a validar.
+	 * @return El curso académico encontrado.
+	 * @throws ReaktorSchoolBaseServerException Si el curso académico es nulo o
+	 *                                          vacío o no existe en la BBDD.
+	 */
+	private CursoAcademico validarCursoAcademico(String cursoAcademico) throws ReaktorSchoolBaseServerException
+	{
+		if (cursoAcademico == null || cursoAcademico.isEmpty())
+		{
+			log.error(Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_CODE,
+					Constants.ERR_ESPACIO_CURSO_ACADEMICO_NULO_VACIO_MESSAGE);
+		}
 
-        // Asignamos los valores de la clave primaria compuesta
-        espacioId.setCursoAcademico(espacioDto.getCursoAcademico());
-        espacioId.setNombre(espacioDto.getNombre());
+		// Buscamos el curso académico en la BBDD
+		Optional<CursoAcademico> cursoAcademicoEntity = this.cursoAcademicoRepository
+				.findByCursoAcademico(cursoAcademico);
 
-        // Validamos si el espacio ya existe en el repositorio de sin docencia
-        if (this.espacioSinDocenciaRepository.existsById(espacioId))
-        {
-            log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_SIN_DOCENCIA_MESSAGE);
-        }
+		// Validamos si el curso académico existe en la BBDD
+		if (cursoAcademicoEntity.isEmpty())
+		{
+			log.error(Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE);
+			throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_CODE,
+					Constants.ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE);
+		}
 
-        // Validamos si el espacio ya existe en el repositorio de fijo
-        if (this.espacioFijoRepository.existsById(espacioId))
-        {
-            log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_FIJO_MESSAGE);
-        }
-
-        // Validamos si el espacio ya existe en el repositorio de desdoble
-        if (this.espacioDesdobleRepository.existsById(espacioId))
-        {
-            log.error(Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE);
-            throw new ReaktorSchoolBaseServerException(Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_CODE, Constants.ERR_ESPACIO_YA_EXISTE_EN_DESDOBLE_MESSAGE);
-        }
-
-        return espacioId;
-    }
+		// Devolvemos el curso académico encontrado
+		return cursoAcademicoEntity.get();
+	}
 }

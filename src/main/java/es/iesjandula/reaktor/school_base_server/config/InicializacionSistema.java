@@ -43,21 +43,24 @@ public class InicializacionSistema
 	 */
 	private void inicializarCursoAcademico()
 	{
-		// Borramos los cursos académicos
-		this.cursoAcademicoRepository.deleteAll();
+	    if (this.cursoAcademicoRepository.count() > 0)
+	    {
+	        log.info("Cursos académicos ya existentes, no se reinicializa.");
+	        return;
+	    }
 
-		// Iteramos por todos los cursos académicos disponibles
-		for (String cursoAcademicoString : Constants.CURSOS_ACADEMICOS)
-		{
-			// Creamos un nuevo curso académico
-			CursoAcademico cursoAcademicoEntity = new CursoAcademico();
+	    // Iteramos por todos los cursos académicos disponibles
+	    for (String cursoAcademicoString : Constants.CURSOS_ACADEMICOS)
+	    {
+	        // Creamos un nuevo curso académico
+	        CursoAcademico cursoAcademicoEntity = new CursoAcademico();
 
-            // Seteamos el curso académico y si está seleccionado
-			cursoAcademicoEntity.setCursoAcademico(cursoAcademicoString);
-			cursoAcademicoEntity.setSeleccionado(cursoAcademicoString.equals(this.cursoAcademicoSeleccionado));
+	        // Seteamos el curso académico y si está seleccionado
+	        cursoAcademicoEntity.setCursoAcademico(cursoAcademicoString);
+	        cursoAcademicoEntity.setSeleccionado(cursoAcademicoString.equals(this.cursoAcademicoSeleccionado));
 
-			// Guardamos el curso académico
-			this.cursoAcademicoRepository.save(cursoAcademicoEntity);
-		}
+	        // Guardamos el curso académico
+	        this.cursoAcademicoRepository.save(cursoAcademicoEntity);
+	    }
 	}
 }

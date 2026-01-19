@@ -30,7 +30,12 @@ public abstract class EspacioDto
         this.nombre = nombre;
     }
 
-    /**
+    public EspacioDto()
+	{
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
      * Getter del curso académico.
      * @return El curso académico.
      */

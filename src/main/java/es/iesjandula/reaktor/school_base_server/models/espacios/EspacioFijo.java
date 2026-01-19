@@ -26,7 +26,7 @@ public class EspacioFijo extends Espacio
 	private CursoAcademico cursoAcademico;
 
 	/** Curso etapa grupo del fijo. */
-	@OneToOne
+	@ManyToOne
 	@JoinColumns({
 	    @JoinColumn(name = "curso", referencedColumnName = "curso"),
 	    @JoinColumn(name = "etapa", referencedColumnName = "etapa"),

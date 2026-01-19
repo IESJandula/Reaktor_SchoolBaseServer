@@ -377,11 +377,14 @@ public class AdminRestController
 
 	        if (existente.isPresent())
 	        {
-	            this.espacioSinDocenciaRepository.saveAndFlush(existente.get());
+	            throw new ReaktorSchoolBaseServerException(
+	                Constants.ERROR_GENERICO_CODE,
+	                "Ya existe un espacio con ese nombre en este curso académico"
+	            );
 	        }
 	        else
 	        {
-	            // 🔥 SI EXISTE COMO FIJO → ROMPER RELACIÓN
+	            // SI EXISTE COMO FIJO → ROMPER RELACIÓN
 	            Optional<EspacioFijo> fijoOpt = this.espacioFijoRepository.findById(espacioId);
 	            if (fijoOpt.isPresent())
 	            {
@@ -395,7 +398,7 @@ public class AdminRestController
 	                this.espacioFijoRepository.delete(fijo);
 	            }
 
-	            // 🔥 BORRAR EN DESDOBLE
+	            // BORRAR EN DESDOBLE
 	            if (this.espacioDesdobleRepository.existsById(espacioId))
 	            {
 	                this.espacioDesdobleRepository.deleteById(espacioId);
@@ -558,7 +561,7 @@ public class AdminRestController
 	        }
 	        else
 	        {
-	            // 🔥 BORRAR EN OTROS TIPOS
+	            // BORRAR EN OTROS TIPOS
 	            if (this.espacioSinDocenciaRepository.existsById(espacioId))
 	            {
 	                this.espacioSinDocenciaRepository.deleteById(espacioId);
@@ -702,11 +705,14 @@ public class AdminRestController
 
 	        if (existente.isPresent())
 	        {
-	            this.espacioDesdobleRepository.saveAndFlush(existente.get());
+	            throw new ReaktorSchoolBaseServerException(
+	                Constants.ERROR_GENERICO_CODE,
+	                "Ya existe un espacio desdoble con ese nombre en este curso académico"
+	            );
 	        }
 	        else
 	        {
-	            // 🔥 SI EXISTE COMO FIJO → ROMPER RELACIÓN
+	            // SI EXISTE COMO FIJO → ROMPER RELACIÓN
 	            Optional<EspacioFijo> fijoOpt = this.espacioFijoRepository.findById(espacioId);
 	            if (fijoOpt.isPresent())
 	            {
@@ -720,7 +726,7 @@ public class AdminRestController
 	                this.espacioFijoRepository.delete(fijo);
 	            }
 
-	            // 🔥 BORRAR EN SIN DOCENCIA
+	            // BORRAR EN SIN DOCENCIA
 	            if (this.espacioSinDocenciaRepository.existsById(espacioId))
 	            {
 	                this.espacioSinDocenciaRepository.deleteById(espacioId);

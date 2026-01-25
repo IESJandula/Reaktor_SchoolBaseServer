@@ -1,7 +1,7 @@
 spring:
   jpa.hibernate.ddl-auto: create
   datasource:
-    url: jdbc:mysql://localhost:3306/reaktor_school_base_server?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/reaktor_schoolbase_server?createDatabaseIfNotExist=true
     username: root
     password: ${DB_PASSWORD}
     hikari:
@@ -21,5 +21,7 @@ reaktor:
   publicKeyFile: ${PUBLIC_KEY_FILE}
   urlCors: https://somos.iesjandula.es
   firebase_server_url: https://api.iesjandula.es/
+  notifications_server_url: https://api.iesjandula.es/
+  clientId: ${CLIENT_ID}
   http_connection_timeout: 30000
   curso_academico: 2025/2026

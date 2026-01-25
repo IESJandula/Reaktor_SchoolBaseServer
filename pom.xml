@@ -98,7 +98,7 @@
 						<configuration>
 							<classifier>jar-with-dependencies</classifier>
 							<mainClass>
-								es.iesjandula.reaktor.issues_server.ReaktorSchoolBaseServerApplication</mainClass>
+								es.iesjandula.reaktor.school_base_server.ReaktorSchoolBaseServerApplication</mainClass>
 						</configuration>
 					</execution>
 				</executions>

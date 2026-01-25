@@ -29,7 +29,7 @@ public class InicializacionSistema
 	@PostConstruct
 	public void inicializarSistema()
 	{
-        if (!this.ddlAuto.equals(Constants.VALOR_SPRING_JPA_HIBERNATE_DDL_AUTO))
+        if (this.ddlAuto.equals(Constants.VALOR_SPRING_JPA_HIBERNATE_DDL_AUTO))
 		{
             // Inicializamos el curso académico
             this.inicializarCursoAcademico();

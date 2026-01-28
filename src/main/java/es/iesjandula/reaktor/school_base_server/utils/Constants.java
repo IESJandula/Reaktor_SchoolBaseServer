@@ -69,6 +69,12 @@ public class Constants
     /** Mensaje de error para el curso académico no existe */
     public static final String ERR_CURSO_ACADEMICO_NO_EXISTE_MESSAGE = "El curso académico no existe";
 
+    /** Código de error para no hay ningún curso académico seleccionado */
+    public static final Integer ERR_NO_CURSO_ACADEMICO_SELECCIONADO_CODE = 102;
+
+    /** Mensaje de error para no hay ningún curso académico seleccionado */
+    public static final String ERR_NO_CURSO_ACADEMICO_SELECCIONADO_MESSAGE = "No hay ningún curso académico seleccionado";
+
     /*******************************************/
     /****** ERRORES EN CURSO ETAPA GRUPO *******/
     /*******************************************/

@@ -39,4 +39,11 @@ public interface ICursoAcademicoRepository extends JpaRepository<CursoAcademico,
     @Modifying
     @Query("UPDATE CursoAcademico SET seleccionado = false")
     void deseleccionarTodosLosCursosAcademicos();
+
+    /**
+     * Obtiene el curso académico seleccionado.
+     * @return El curso académico seleccionado en formato String.
+     */
+    @Query("SELECT c.cursoAcademico FROM CursoAcademico c WHERE c.seleccionado = true")
+    String obtenerCursoAcademicoSeleccionado();
 }

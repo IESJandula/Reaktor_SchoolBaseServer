@@ -293,6 +293,22 @@ public class AdminRestController
 				throw new ReaktorSchoolBaseServerException(Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_CODE,
 						Constants.ERR_CURSO_ETAPA_GRUPO_NO_EXISTE_MESSAGE);
 			}
+			
+			// NUEVA VALIDACIÓN → ¿Está el grupo asignado a un espacio fijo?
+			boolean grupoEnUso = this.espacioFijoRepository.existeGrupoAsignado(
+			        cursoEtapaGrupoDto.getCurso(),
+			        cursoEtapaGrupoDto.getEtapa(),
+			        cursoEtapaGrupoDto.getGrupo()
+			);
+
+	        if (grupoEnUso)
+	        {
+	            log.error("No se puede borrar el grupo porque está asignado a un espacio fijo");
+	            throw new ReaktorSchoolBaseServerException(
+	                400,
+	                "No puedes borrar el grupo mientras esté asociado a un espacio fijo"
+	            );
+	        }
 
 			// Borramos el curso, etapa y grupo en el repositorio de curso etapa grupo
 			this.cursoEtapaGrupoRepository.deleteById(cursoEtapaGrupoId);

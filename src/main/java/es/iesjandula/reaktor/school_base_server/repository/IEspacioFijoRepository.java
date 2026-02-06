@@ -39,4 +39,13 @@ public interface IEspacioFijoRepository extends JpaRepository<EspacioFijo, Espac
 			    WHERE e.espacioId.cursoAcademico = :cursoAcademico
 			""")
 	List<EspacioFijoDto> buscarPorCursoAcademico(String cursoAcademico);
+	
+	@Query("""
+		    SELECT COUNT(e) > 0
+		    FROM EspacioFijo e
+		    WHERE e.cursoEtapaGrupo.cursoEtapaGrupoId.curso = :curso
+		      AND e.cursoEtapaGrupo.cursoEtapaGrupoId.etapa = :etapa
+		      AND e.cursoEtapaGrupo.cursoEtapaGrupoId.grupo = :grupo
+		""")
+		boolean existeGrupoAsignado(Integer curso, String etapa, String grupo);
 }

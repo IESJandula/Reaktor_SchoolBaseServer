@@ -27,3 +27,6 @@ reaktor:
   school_base_server_url: http://localhost:8093/
   http_connection_timeout: 30000
   curso_academico: 2025/2026
+  audit:
+    exchange: audit.exchange
+    routing-key: audit.key

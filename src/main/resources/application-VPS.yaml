@@ -36,3 +36,6 @@ reaktor:
   clientId: ${CLIENT_ID}
   http_connection_timeout: 30000
   curso_academico: 2025/2026
+  audit:
+    exchange: audit.exchange
+    routing-key: audit.key

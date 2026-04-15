@@ -230,37 +230,6 @@ public class AdminRestController
 	}
 
 	/**
-	 * Obtiene la lista de cursos, etapas y grupos.
-	 * 
-	 * @return La respuesta HTTP con la lista de cursos, etapas y grupos.
-	 */
-	@PreAuthorize("hasRole('" + BaseConstants.ROLE_ADMINISTRADOR + "')")
-	@GetMapping(value = "/cursos_etapas_grupos")
-	public ResponseEntity<?> obtenerCursosEtapasGrupos()
-	{
-		try
-		{
-			// Obtenemos todos los cursos, etapas y grupos en formato DTO
-			List<CursoEtapaGrupoDto> cursosEtapasGruposDto = this.cursoEtapaGrupoRepository.findAllDto();
-
-			// Devolvemos la respuesta
-			return ResponseEntity.ok(cursosEtapasGruposDto);
-		} catch (Exception exception)
-		{
-			// Creamos la excepción genérica
-			ReaktorSchoolBaseServerException reaktorSchoolBaseServerException = new ReaktorSchoolBaseServerException(
-					Constants.ERROR_GENERICO_CODE, Constants.ERROR_GENERICO_MESSAGE);
-
-			// Logueamos el error
-			log.error("Error generico al obtener los cursos, etapas y grupos: " + exception.getMessage(), exception);
-
-			// Devolvemos la excepción genérica
-			return ResponseEntity.status(Constants.ERROR_GENERICO_CODE)
-					.body(reaktorSchoolBaseServerException.getBodyExceptionMessage());
-		}
-	}
-
-	/**
 	 * Borra un curso, etapa y grupo a partir del DTO.
 	 * 
 	 * @param cursoEtapaGrupoDto El DTO del curso, etapa y grupo a borrar.

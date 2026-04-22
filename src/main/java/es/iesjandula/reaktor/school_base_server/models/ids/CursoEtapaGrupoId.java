@@ -34,7 +34,7 @@ public class CursoEtapaGrupoId implements Serializable
      * Etapa del curso.
      * Forma parte de la clave primaria compuesta.
      */
-	@Column(length = 30)
+	@Column(length = 50)
     private String etapa;
     
     /**
